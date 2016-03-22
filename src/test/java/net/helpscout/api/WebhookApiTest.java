@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
  * Date: 22.03.16
  * Time: 0:33
  */
-public class WebhookApiTest extends AbstractApiClientTest {
+public class WebhookApiTest {
 
 
     /**
