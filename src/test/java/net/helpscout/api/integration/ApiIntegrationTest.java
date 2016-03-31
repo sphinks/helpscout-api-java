@@ -1,7 +1,8 @@
-package net.helpscout.api;
+package net.helpscout.api.integration;
 
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import lombok.SneakyThrows;
+import net.helpscout.api.ApiClient;
 import net.helpscout.api.cbo.*;
 import net.helpscout.api.model.*;
 import net.helpscout.api.model.ref.CustomerRef;
@@ -33,6 +34,9 @@ import static org.junit.Assert.assertThat;
  * 2. All data affect actions should be reverted to initial state at end of test (e.g. createConversation-deleteConversation).
  * 3. It is not a unit test, it is ping-test, so it should be divided in some different tests, in case every test does
  * not rely on results of other test.
+ *
+ * How to run:
+ * mvn test -P=full-pack -DApiKey=<your_api_key>
  */
 public class ApiIntegrationTest {
 
@@ -49,6 +53,7 @@ public class ApiIntegrationTest {
                 System.getProperty("ApiKey") != null && !System.getProperty("ApiKey").isEmpty());
 
         client = ApiClient.getInstance();
+        System.out.println("Found API key: " + System.getProperty("ApiKey"));
         client.setKey(System.getProperty("ApiKey"));
     }
 
@@ -169,7 +174,9 @@ public class ApiIntegrationTest {
         assertThat(thread.getBody(), equalTo("New Text"));
 
         // Search conversation
-//        Page<SearchConversation> findConversation = client.searchConversations("(subject:\"It is updated!\")", null, null, 1);
+        // Could not be test until resolve of issue:
+        // https://github.com/helpscout/helpscout-api-java/issues/23
+        //Page<SearchConversation> findConversation = client.searchConversations("(subject:\"It is updated!\")", null, null, 1);
 
         // Delete test conversation and measure once again
         client.deleteConversation(testConversation.getId());
@@ -179,6 +186,7 @@ public class ApiIntegrationTest {
     /**
      * Test to ping attachment endpoints.
      * Set to @Ingnore, cause there is no way to delete created attachment at current api implementation.
+     * Waiting for resolve of issue: https://github.com/helpscout/helpscout-api-java/issues/22
      */
     @Test
     @Ignore
