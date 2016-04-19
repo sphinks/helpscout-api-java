@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
@@ -1426,7 +1427,12 @@ public class ApiClient {
                 } else {
                     sb.append("?");
                 }
-                sb.append(key).append("=").append(params.get(key));
+                try {
+                    String encodedParameter = URLEncoder.encode(params.get(key), "UTF-8");
+                    sb.append(key).append("=").append(encodedParameter);
+                } catch(UnsupportedEncodingException ex) {
+                    throw new RuntimeException("Error with encoding of URL parameters");
+                }
             }
             return sb.toString();
         }
