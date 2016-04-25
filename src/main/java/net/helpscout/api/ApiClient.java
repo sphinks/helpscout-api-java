@@ -1,6 +1,7 @@
 package net.helpscout.api;
 
 import com.google.gson.*;
+import lombok.SneakyThrows;
 import net.helpscout.api.adapters.*;
 import net.helpscout.api.cbo.*;
 import net.helpscout.api.exception.*;
@@ -1417,6 +1418,7 @@ public class ApiClient {
         }
     }
 
+    @SneakyThrows
     private String setParams(String url, Map<String, String> params) {
         if (params != null && params.size() > 0) {
             StringBuilder sb = new StringBuilder();
@@ -1427,12 +1429,8 @@ public class ApiClient {
                 } else {
                     sb.append("?");
                 }
-                try {
-                    String encodedParameter = URLEncoder.encode(params.get(key), "UTF-8");
-                    sb.append(key).append("=").append(encodedParameter);
-                } catch(UnsupportedEncodingException ex) {
-                    throw new RuntimeException("Error with encoding of URL parameters");
-                }
+                String encodedParameter = URLEncoder.encode(params.get(key), "UTF-8");
+                sb.append(key).append("=").append(encodedParameter);
             }
             return sb.toString();
         }
