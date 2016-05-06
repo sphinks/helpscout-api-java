@@ -16,15 +16,12 @@ public class ParamsUtils {
 
     @SneakyThrows
     public static String setParams(String url, Map<String, String> params) {
+
         if (params != null && params.size() > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append(url);
             for (String key : params.keySet()) {
-                if (sb.indexOf("?") > 0) {
-                    sb.append("&");
-                } else {
-                    sb.append("?");
-                }
+                appendParamSeparator(sb);
                 String encodedParameter = URLEncoder.encode(params.get(key), "UTF-8");
                 sb.append(key).append("=").append(encodedParameter);
             }
@@ -34,14 +31,11 @@ public class ParamsUtils {
     }
 
     public static String setFields(String url, List<String> fields) {
+
         if (fields != null && fields.size() > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append(url);
-            if (url.indexOf("?") > 0) {
-                sb.append("&");
-            } else {
-                sb.append("?");
-            }
+            appendParamSeparator(sb);
             sb.append("fields=");
 
             String sep = "";
@@ -55,16 +49,17 @@ public class ParamsUtils {
     }
 
     public static Map<String, String> getCustomerSearchParams(String email, String firstName, String lastName, Integer page) {
+
         Map<String, String> params = new HashMap<String, String>();
-        if (email != null && email.trim().length() > 0) {
+        if (isNotNullAndNotEmpty(email)) {
             params.put("email", email.trim().toLowerCase());
         }
 
-        if (firstName != null && firstName.trim().length() > 0) {
+        if (isNotNullAndNotEmpty(firstName)) {
             params.put("firstName", firstName.trim());
         }
 
-        if (lastName != null && lastName.trim().length() > 0) {
+        if (isNotNullAndNotEmpty(lastName)) {
             params.put("lastName", lastName.trim());
         }
 
@@ -72,5 +67,18 @@ public class ParamsUtils {
             params.put("page", String.valueOf(page));
         }
         return params;
+    }
+
+    private static boolean isNotNullAndNotEmpty(String param) {
+        return (param != null && param.trim().length() > 0);
+    }
+
+    private static StringBuilder appendParamSeparator(StringBuilder url) {
+        if (url.indexOf("?") > 0) {
+            url.append("&");
+        } else {
+            url.append("?");
+        }
+        return url;
     }
 }
