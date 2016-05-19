@@ -28,9 +28,7 @@ import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
 import java.util.*;
 
 import static java.text.MessageFormat.format;
