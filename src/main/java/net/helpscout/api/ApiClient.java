@@ -1451,16 +1451,7 @@ public class ApiClient {
     private <T> T doPost(String url, String requestBody, int expectedCode, ResultExtractor<T> extractor) throws ApiException {
         HttpURLConnection conn = null;
         try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_POST, requestBody != null);
-
-            if (requestBody != null) {
-                conn.setDoOutput(true);
-                try (OutputStream output = conn.getOutputStream()) {
-                    output.write(requestBody.getBytes("UTF-8"));
-                }
-            }
-            conn.connect();
-            HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
+            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_POST, expectedCode, requestBody);
             return extractor.extract(conn);
         } catch(ApiException ex) {
             throw ex;
@@ -1508,15 +1499,7 @@ public class ApiClient {
     private void doPut(String url, String requestBody, int expectedCode) throws ApiException {
         HttpURLConnection conn = null;
         try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_PUT, requestBody != null);
-            if (requestBody != null) {
-                conn.setDoOutput(true);
-                try (OutputStream output = conn.getOutputStream()) {
-                    output.write(requestBody.getBytes("UTF-8"));
-                }
-            }
-            conn.connect();
-            HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
+            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_PUT, expectedCode, requestBody);
         } catch(ApiException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -1531,10 +1514,7 @@ public class ApiClient {
         HttpURLConnection conn = null;
         String response    = null;
         try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_GET, false);
-            conn.connect();
-            HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
-
+            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_GET, expectedCode);
             response = HTTPConnectionUtils.getResponse(conn);
 
         } catch(ApiException e) {
@@ -1550,9 +1530,7 @@ public class ApiClient {
     private void doDelete(String url, int expectedCode) throws ApiException {
         HttpURLConnection conn = null;
         try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_DELETE, false);
-            conn.connect();
-            HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
+            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_DELETE, expectedCode);
         } catch(ApiException e) {
             throw e;
         } catch (Exception ex) {

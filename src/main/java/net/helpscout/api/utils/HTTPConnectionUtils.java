@@ -6,10 +6,7 @@ import net.helpscout.api.json.JsonFormatter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -28,7 +25,11 @@ public class HTTPConnectionUtils {
 
     public static final int HTTP_REQUESTS_LIMIT = 429;
 
-    public static HttpURLConnection getConnection(String apiKey, String url, String method, boolean hasRequestBody) throws Exception {
+    public static HttpURLConnection getConnection(String apiKey, String url, String method, int expectedCode) throws Exception {
+        return getConnection(apiKey, url, method, expectedCode, null);
+    }
+
+    public static HttpURLConnection getConnection(String apiKey, String url, String method, int expectedCode, String requestBody) throws ApiException, IOException {
 
         URL aUrl = new URL(url);
 
@@ -37,16 +38,22 @@ public class HTTPConnectionUtils {
         conn.setInstanceFollowRedirects(false);
         conn.setRequestMethod(method);
 
-        if (hasRequestBody) {
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-        }
         conn.setRequestProperty("Authorization", "Basic " + EncodeUtils.getEncoded(apiKey + ":x"));
         conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+        if (requestBody != null) {
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+            try (OutputStream output = conn.getOutputStream()) {
+                output.write(requestBody.getBytes("UTF-8"));
+            }
+        }
+        conn.connect();
+        checkStatusCode(conn, expectedCode);
         return conn;
     }
 
-    public static void checkStatusCode(HttpURLConnection conn, int expectedCode) throws ApiException, IOException {
+    private static void checkStatusCode(HttpURLConnection conn, int expectedCode) throws ApiException, IOException {
         int code = conn.getResponseCode();
 
         if (code == expectedCode) {
