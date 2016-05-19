@@ -4,6 +4,8 @@ import com.google.gson.*;
 import net.helpscout.api.adapters.*;
 import net.helpscout.api.cbo.*;
 import net.helpscout.api.exception.*;
+import net.helpscout.api.extractors.HashExtractor;
+import net.helpscout.api.extractors.IdExtractor;
 import net.helpscout.api.utils.EncodeUtils;
 import net.helpscout.api.utils.HTTPConnectionUtils;
 import net.helpscout.api.utils.JSONUtils;
@@ -49,6 +51,9 @@ public class ApiClient {
 
     private String apiKey = "";
     private String baseUrl = DEFAULT_BASE_URL;
+
+    private static final ResultExtractor<Long> idExtractor = new IdExtractor();
+    private static final ResultExtractor<String> hashExtractor = new HashExtractor();
 
     private static ApiClient instance = new ApiClient();
 
@@ -1461,40 +1466,6 @@ public class ApiClient {
             HTTPConnectionUtils.close(conn);
         }
     }
-
-    private final ResultExtractor<Long> idExtractor = new ResultExtractor<Long>() {
-        public Long extract(HttpURLConnection conn) {
-            String location = conn.getHeaderField("LOCATION");
-            if (location != null && location.trim().length() > 0) {
-                return new Long(location.substring(
-                        location.lastIndexOf("/") + 1,
-                        location.lastIndexOf(".")));
-            } else {
-                return null;
-            }
-        }
-    };
-
-    private final ResultExtractor<String> hashExtractor = new ResultExtractor<String>() {
-        public String extract(HttpURLConnection conn) {
-            String hash = null;
-            String response;
-            try {
-                response = HTTPConnectionUtils.getResponse(conn);
-                LoggerFactory.getLogger(getClass()).debug("attachment: {}",
-                        response);
-                JsonElement obj = (new JsonParser()).parse(response);
-                JsonElement item = obj.getAsJsonObject().get("item");
-                hash = item.getAsJsonObject().get("hash").getAsString();
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            } finally {
-                HTTPConnectionUtils.close(conn);
-            }
-            return hash;
-        }
-    };
 
     private void doPut(String url, String requestBody, int expectedCode) throws ApiException {
         HttpURLConnection conn = null;
