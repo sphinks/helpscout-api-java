@@ -9,8 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -96,12 +98,17 @@ public class HTTPConnectionUtils {
         }
     }
 
-    public static String getResponse(BufferedReader reader) throws IOException {
+    public static String getResponse(HttpURLConnection conn) throws IOException {
+
         StringBuilder sb = new StringBuilder();
 
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
         }
 
         return sb.toString();

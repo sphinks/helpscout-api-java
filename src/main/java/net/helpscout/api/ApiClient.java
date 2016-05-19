@@ -1488,10 +1488,8 @@ public class ApiClient {
         public String extract(HttpURLConnection conn) {
             String hash = null;
             String response;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
-
-                response = HTTPConnectionUtils.getResponse(br);
+            try {
+                response = HTTPConnectionUtils.getResponse(conn);
                 LoggerFactory.getLogger(getClass()).debug("attachment: {}",
                         response);
                 JsonElement obj = (new JsonParser()).parse(response);
@@ -1537,10 +1535,8 @@ public class ApiClient {
             conn.connect();
             HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
-                response = HTTPConnectionUtils.getResponse(br);
-            }
+            response = HTTPConnectionUtils.getResponse(conn);
+
         } catch(ApiException e) {
             throw e;
         } catch(Exception e) {
