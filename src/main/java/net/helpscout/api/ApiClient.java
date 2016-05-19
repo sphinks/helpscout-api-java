@@ -1455,14 +1455,8 @@ public class ApiClient {
 
             if (requestBody != null) {
                 conn.setDoOutput(true);
-                OutputStream output = null;
-                try {
-                    output = conn.getOutputStream();
+                try (OutputStream output = conn.getOutputStream()) {
                     output.write(requestBody.getBytes("UTF-8"));
-                } finally {
-                    if (output != null) {
-                        try { output.close(); } catch (IOException ignored) {}
-                    }
                 }
             }
             conn.connect();
@@ -1493,11 +1487,10 @@ public class ApiClient {
     private final ResultExtractor<String> hashExtractor = new ResultExtractor<String>() {
         public String extract(HttpURLConnection conn) {
             String hash = null;
-            BufferedReader br = null;
             String response;
-            try {
-                br = new BufferedReader(new InputStreamReader(
-                        (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")));
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
+
                 response = HTTPConnectionUtils.getResponse(br);
                 LoggerFactory.getLogger(getClass()).debug("attachment: {}",
                         response);
@@ -1508,7 +1501,6 @@ public class ApiClient {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             } finally {
-                HTTPConnectionUtils.close(br);
                 HTTPConnectionUtils.close(conn);
             }
             return hash;
@@ -1521,14 +1513,8 @@ public class ApiClient {
             conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_PUT, requestBody != null);
             if (requestBody != null) {
                 conn.setDoOutput(true);
-                OutputStream output = null;
-                try {
-                    output = conn.getOutputStream();
+                try (OutputStream output = conn.getOutputStream()) {
                     output.write(requestBody.getBytes("UTF-8"));
-                } finally {
-                    if (output != null) {
-                        try { output.close(); } catch (IOException ignored) {}
-                    }
                 }
             }
             conn.connect();
@@ -1545,21 +1531,21 @@ public class ApiClient {
 
     private String doGet(String url, int expectedCode) throws ApiException {
         HttpURLConnection conn = null;
-        BufferedReader br  = null;
         String response    = null;
         try {
             conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_GET, false);
             conn.connect();
             HTTPConnectionUtils.checkStatusCode(conn, expectedCode);
 
-            br = new BufferedReader(new InputStreamReader((HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")));
-            response = HTTPConnectionUtils.getResponse(br);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
+                response = HTTPConnectionUtils.getResponse(br);
+            }
         } catch(ApiException e) {
             throw e;
         } catch(Exception e) {
             throw new RuntimeException(e);
         } finally {
-            HTTPConnectionUtils.close(br);
             HTTPConnectionUtils.close(conn);
         }
         return response;

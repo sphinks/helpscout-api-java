@@ -107,16 +107,6 @@ public class HTTPConnectionUtils {
         return sb.toString();
     }
 
-    public static void close(BufferedReader reader) {
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-    }
-
     public static InputStream getInputStream(HttpURLConnection conn) throws IOException {
         String encoding = conn.getContentEncoding();
 
