@@ -85,7 +85,7 @@ public class HTTPConnectionUtils {
         }
     }
 
-    public static String getDetailedErrorMessage(HttpURLConnection conn) throws IOException {
+    private static String getDetailedErrorMessage(HttpURLConnection conn) throws IOException {
         InputStream is = conn.getErrorStream();
         String json = "";
         if (is != null) {
