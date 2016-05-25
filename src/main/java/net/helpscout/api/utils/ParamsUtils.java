@@ -1,6 +1,7 @@
 package net.helpscout.api.utils;
 
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -36,13 +37,9 @@ public class ParamsUtils {
             StringBuilder sb = new StringBuilder();
             sb.append(url);
             appendParamSeparator(sb);
-            sb.append("fields=");
+            String joinedParams = StringUtils.join(fields, ',');
 
-            String sep = "";
-            for (String field : fields) {
-                sb.append(sep).append(field);
-                sep = ",";
-            }
+            sb.append("fields=").append(joinedParams);
             url = sb.toString();
         }
         return url;

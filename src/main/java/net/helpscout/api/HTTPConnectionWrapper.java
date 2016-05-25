@@ -55,6 +55,17 @@ public class HTTPConnectionWrapper implements AutoCloseable {
         this(apiKey, url, method, expectedCode, null);
     }
 
+    @Override
+    public void close() throws Exception {
+        if (conn != null) {
+            try {
+                conn.disconnect();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
     private static void checkStatusCode(HttpURLConnection conn, int expectedCode) throws ApiException, IOException {
         int code = conn.getResponseCode();
 
@@ -95,17 +106,6 @@ public class HTTPConnectionWrapper implements AutoCloseable {
         }
 
         return StringUtils.isNotEmpty(json) ? new JsonFormatter().format(json) : null;
-    }
-
-    @Override
-    public void close() throws Exception {
-        if (conn != null) {
-            try {
-                conn.disconnect();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
     }
 
     public String getResponse() throws IOException {
