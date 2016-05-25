@@ -7,7 +7,6 @@ import net.helpscout.api.exception.*;
 import net.helpscout.api.extractors.HashExtractor;
 import net.helpscout.api.extractors.IdExtractor;
 import net.helpscout.api.utils.EncodeUtils;
-import net.helpscout.api.utils.HTTPConnectionUtils;
 import net.helpscout.api.utils.JSONUtils;
 import net.helpscout.api.model.*;
 import net.helpscout.api.model.Customer;
@@ -28,7 +27,6 @@ import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
 import org.slf4j.LoggerFactory;
 
-import java.net.HttpURLConnection;
 import java.util.*;
 
 import static java.text.MessageFormat.format;
@@ -1452,61 +1450,46 @@ public class ApiClient {
     }
     
     private <T> T doPost(String url, String requestBody, int expectedCode, ResultExtractor<T> extractor) throws ApiException {
-        HttpURLConnection conn = null;
-        try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_POST, expectedCode, requestBody);
+
+        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_POST, expectedCode, requestBody)) {
             return extractor.extract(conn);
         } catch(ApiException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
-        } finally {
-            HTTPConnectionUtils.close(conn);
         }
     }
 
     private void doPut(String url, String requestBody, int expectedCode) throws ApiException {
-        HttpURLConnection conn = null;
-        try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_PUT, expectedCode, requestBody);
+
+        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_PUT, expectedCode, requestBody)) {
         } catch(ApiException ex) {
             throw ex;
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
-        } finally {
-            HTTPConnectionUtils.close(conn);
         }
     }
 
     private String doGet(String url, int expectedCode) throws ApiException {
-        HttpURLConnection conn = null;
         String response    = null;
-        try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_GET, expectedCode);
-            response = HTTPConnectionUtils.getResponse(conn);
-
+        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_GET, expectedCode)) {
+            response = conn.getResponse();
         } catch(ApiException e) {
             throw e;
         } catch(Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            HTTPConnectionUtils.close(conn);
         }
         return response;
     }
 
     private void doDelete(String url, int expectedCode) throws ApiException {
-        HttpURLConnection conn = null;
-        try {
-            conn = HTTPConnectionUtils.getConnection(apiKey, baseUrl + url, METHOD_DELETE, expectedCode);
+        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_DELETE, expectedCode)) {
         } catch(ApiException e) {
             throw e;
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);
-        } finally {
-            HTTPConnectionUtils.close(conn);
         }
     }
 

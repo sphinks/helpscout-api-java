@@ -3,10 +3,8 @@ package net.helpscout.api.extractors;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.helpscout.api.ResultExtractor;
-import net.helpscout.api.utils.HTTPConnectionUtils;
+import net.helpscout.api.HTTPConnectionWrapper;
 import org.slf4j.LoggerFactory;
-
-import java.net.HttpURLConnection;
 
 /**
  * @Author: ivan
@@ -15,11 +13,11 @@ import java.net.HttpURLConnection;
  */
 public class HashExtractor implements ResultExtractor<String> {
 
-    public String extract(HttpURLConnection conn) {
+    public String extract(HTTPConnectionWrapper conn) {
         String hash = null;
         String response;
         try {
-            response = HTTPConnectionUtils.getResponse(conn);
+            response = conn.getResponse();
             LoggerFactory.getLogger(getClass()).debug("attachment: {}",
                     response);
             JsonElement obj = (new JsonParser()).parse(response);
@@ -28,8 +26,6 @@ public class HashExtractor implements ResultExtractor<String> {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            HTTPConnectionUtils.close(conn);
         }
         return hash;
     }

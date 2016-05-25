@@ -1,8 +1,7 @@
 package net.helpscout.api.extractors;
 
 import net.helpscout.api.ResultExtractor;
-
-import java.net.HttpURLConnection;
+import net.helpscout.api.HTTPConnectionWrapper;
 
 /**
  * @Author: ivan
@@ -11,8 +10,8 @@ import java.net.HttpURLConnection;
  */
 public class IdExtractor implements ResultExtractor<Long> {
 
-    public Long extract(HttpURLConnection conn) {
-        String location = conn.getHeaderField("LOCATION");
+    public Long extract(HTTPConnectionWrapper conn) {
+        String location = conn.getConnection().getHeaderField("LOCATION");
         if (location != null && location.trim().length() > 0) {
             return new Long(location.substring(
                     location.lastIndexOf("/") + 1,

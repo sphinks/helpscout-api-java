@@ -1,8 +1,8 @@
-package net.helpscout.api.utils;
+package net.helpscout.api;
 
-import net.helpscout.api.ApiException;
 import net.helpscout.api.exception.*;
 import net.helpscout.api.json.JsonFormatter;
+import net.helpscout.api.utils.EncodeUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,19 +21,18 @@ import static java.net.HttpURLConnection.*;
  * Date: 26.04.16
  * Time: 23:37
  */
-public class HTTPConnectionUtils {
+public class HTTPConnectionWrapper implements AutoCloseable {
 
     public static final int HTTP_REQUESTS_LIMIT = 429;
 
-    public static HttpURLConnection getConnection(String apiKey, String url, String method, int expectedCode) throws Exception {
-        return getConnection(apiKey, url, method, expectedCode, null);
-    }
+    private HttpURLConnection conn;
 
-    public static HttpURLConnection getConnection(String apiKey, String url, String method, int expectedCode, String requestBody) throws ApiException, IOException {
+
+    public HTTPConnectionWrapper(String apiKey, String url, String method, int expectedCode, String requestBody) throws ApiException, IOException {
 
         URL aUrl = new URL(url);
 
-        HttpURLConnection conn = (HttpURLConnection) aUrl.openConnection();
+        conn = (HttpURLConnection) aUrl.openConnection();
 
         conn.setInstanceFollowRedirects(false);
         conn.setRequestMethod(method);
@@ -50,7 +49,10 @@ public class HTTPConnectionUtils {
         }
         conn.connect();
         checkStatusCode(conn, expectedCode);
-        return conn;
+    }
+
+    public HTTPConnectionWrapper(String apiKey, String url, String method, int expectedCode) throws Exception {
+        this(apiKey, url, method, expectedCode, null);
     }
 
     private static void checkStatusCode(HttpURLConnection conn, int expectedCode) throws ApiException, IOException {
@@ -95,7 +97,8 @@ public class HTTPConnectionUtils {
         return StringUtils.isNotEmpty(json) ? new JsonFormatter().format(json) : null;
     }
 
-    public static void close(HttpURLConnection conn) {
+    @Override
+    public void close() throws Exception {
         if (conn != null) {
             try {
                 conn.disconnect();
@@ -105,12 +108,12 @@ public class HTTPConnectionUtils {
         }
     }
 
-    public static String getResponse(HttpURLConnection conn) throws IOException {
+    public String getResponse() throws IOException {
 
         StringBuilder sb = new StringBuilder();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                (HTTPConnectionUtils.getInputStream(conn)), Charset.forName("UTF8")))) {
+                (HTTPConnectionWrapper.getInputStream(conn)), Charset.forName("UTF8")))) {
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -139,6 +142,10 @@ public class HTTPConnectionUtils {
             inputStream = conn.getInputStream();
         }
         return inputStream;
+    }
+
+    public HttpURLConnection getConnection() {
+        return conn;
     }
 
 }
