@@ -66,6 +66,34 @@ public class HTTPConnectionWrapper implements AutoCloseable {
         }
     }
 
+    public HttpURLConnection getConnection() {
+        return conn;
+    }
+
+    public String getResponse() throws IOException {
+        return IOUtils.toString(this.getInputStream(), Charset.forName("UTF8"));
+    }
+
+    private InputStream getInputStream() throws IOException {
+        String encoding = conn.getContentEncoding();
+
+        InputStream inputStream = null;
+
+        //create the appropriate stream wrapper based on
+        //the encoding type
+        if (encoding != null) {
+            if (encoding.equalsIgnoreCase("gzip")) {
+                inputStream = new GZIPInputStream(conn.getInputStream());
+            } else if (encoding.equalsIgnoreCase("deflate")) {
+                inputStream = new InflaterInputStream(conn.getInputStream(), new Inflater(true));
+            }
+        }
+        if (inputStream == null) {
+            inputStream = conn.getInputStream();
+        }
+        return inputStream;
+    }
+
     private static void checkStatusCode(HttpURLConnection conn, int expectedCode) throws ApiException, IOException {
         int code = conn.getResponseCode();
 
@@ -106,46 +134,6 @@ public class HTTPConnectionWrapper implements AutoCloseable {
         }
 
         return StringUtils.isNotEmpty(json) ? new JsonFormatter().format(json) : null;
-    }
-
-    public String getResponse() throws IOException {
-
-        StringBuilder sb = new StringBuilder();
-
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                (HTTPConnectionWrapper.getInputStream(conn)), Charset.forName("UTF8")))) {
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-
-        return sb.toString();
-    }
-
-    public static InputStream getInputStream(HttpURLConnection conn) throws IOException {
-        String encoding = conn.getContentEncoding();
-
-        InputStream inputStream = null;
-
-        //create the appropriate stream wrapper based on
-        //the encoding type
-        if (encoding != null) {
-            if (encoding.equalsIgnoreCase("gzip")) {
-                inputStream = new GZIPInputStream(conn.getInputStream());
-            } else if (encoding.equalsIgnoreCase("deflate")) {
-                inputStream = new InflaterInputStream(conn.getInputStream(), new Inflater(true));
-            }
-        }
-        if (inputStream == null) {
-            inputStream = conn.getInputStream();
-        }
-        return inputStream;
-    }
-
-    public HttpURLConnection getConnection() {
-        return conn;
     }
 
 }
