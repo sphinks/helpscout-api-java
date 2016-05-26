@@ -48,15 +48,15 @@ public class ParamsUtils {
     public static Map<String, String> getCustomerSearchParams(String email, String firstName, String lastName, Integer page) {
 
         Map<String, String> params = new HashMap<String, String>();
-        if (isNotNullAndNotEmpty(email)) {
+        if (StringUtils.isNotBlank(email)) {
             params.put("email", email.trim().toLowerCase());
         }
 
-        if (isNotNullAndNotEmpty(firstName)) {
+        if (StringUtils.isNotBlank(firstName)) {
             params.put("firstName", firstName.trim());
         }
 
-        if (isNotNullAndNotEmpty(lastName)) {
+        if (StringUtils.isNotBlank(lastName)) {
             params.put("lastName", lastName.trim());
         }
 
@@ -64,10 +64,6 @@ public class ParamsUtils {
             params.put("page", String.valueOf(page));
         }
         return params;
-    }
-
-    private static boolean isNotNullAndNotEmpty(String param) {
-        return (param != null && param.trim().length() > 0);
     }
 
     private static StringBuilder appendParamSeparator(StringBuilder url) {

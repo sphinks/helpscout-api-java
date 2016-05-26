@@ -2,6 +2,7 @@ package net.helpscout.api.extractors;
 
 import net.helpscout.api.ResultExtractor;
 import net.helpscout.api.HTTPConnectionWrapper;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @Author: ivan
@@ -12,7 +13,7 @@ public class IdExtractor implements ResultExtractor<Long> {
 
     public Long extract(HTTPConnectionWrapper conn) {
         String location = conn.getConnection().getHeaderField("LOCATION");
-        if (location != null && location.trim().length() > 0) {
+        if (StringUtils.isNotBlank(location)) {
             return new Long(location.substring(
                     location.lastIndexOf("/") + 1,
                     location.lastIndexOf(".")));
