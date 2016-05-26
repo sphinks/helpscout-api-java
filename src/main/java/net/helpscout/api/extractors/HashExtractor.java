@@ -24,7 +24,6 @@ public class HashExtractor implements ResultExtractor<String> {
             JsonElement item = obj.getAsJsonObject().get("item");
             hash = item.getAsJsonObject().get("hash").getAsString();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
         return hash;

@@ -1117,7 +1117,6 @@ public class ApiClient {
 
             doPost(url.toString(), json, HTTP_STATUS_CREATED, idExtractor);
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new ApiException(ex.getMessage());
         }
     }
@@ -1466,7 +1465,6 @@ public class ApiClient {
         } catch(ApiException ex) {
             throw ex;
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
@@ -1488,7 +1486,6 @@ public class ApiClient {
         } catch(ApiException e) {
             throw e;
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
