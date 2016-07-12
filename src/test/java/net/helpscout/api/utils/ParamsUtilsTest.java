@@ -17,62 +17,59 @@ import static org.junit.Assert.assertThat;
  * Time: 19:31
  */
 public class ParamsUtilsTest {
+
+    private static final String BASE_URL = "http://some-test-url.com";
     
     @Test
     public void testSetParamsWithTwoParams() {
 
-        String url = "http://some-test-url.com";
         Map<String, String> parameters = new HashMap<>();
         parameters.put("param1", "value1");
         parameters.put("param2", "Some value with space");
-        String resultUrl = ParamsUtils.setParams(url, parameters);
+        String resultUrl = ParamsUtils.setParams(BASE_URL, parameters);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com?param1=value1&param2=Some+value+with+space"));
+        assertThat(resultUrl, is(BASE_URL + "?param1=value1&param2=Some+value+with+space"));
     }
 
     @Test
     public void testSetParamsWithZeroParams() {
 
-        String url = "http://some-test-url.com";
         Map<String, String> parameters = new HashMap<>();
 
-        String resultUrl = ParamsUtils.setParams(url, parameters);
+        String resultUrl = ParamsUtils.setParams(BASE_URL, parameters);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com"));
+        assertThat(resultUrl, is(BASE_URL));
     }
 
     @Test
     public void testSetParamsWithNullParams() {
 
-        String url = "http://some-test-url.com";
-
-        String resultUrl = ParamsUtils.setParams(url, null);
+        String resultUrl = ParamsUtils.setParams(BASE_URL, null);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com"));
+        assertThat(resultUrl, is(BASE_URL));
     }
 
     @Test
     public void testSetFieldsWithThreeNonEmptyFields() {
 
-        String url = "http://some-test-url.com";
         List<String> fields = new ArrayList<>();
         fields.add("field1");
         fields.add("field2");
         fields.add("3field");
 
-        String resultUrl = ParamsUtils.setFields(url, fields);
+        String resultUrl = ParamsUtils.setFields(BASE_URL, fields);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com?fields=field1,field2,3field"));
+        assertThat(resultUrl, is(BASE_URL + "?fields=field1,field2,3field"));
     }
 
     @Test
     public void testSetFieldsWithThreeNonEmptyFieldsAndComplexUrl() {
 
-        String url = "http://some-test-url.com?someParam=Some+value";
+        String url = BASE_URL + "?someParam=Some+value";
         List<String> fields = new ArrayList<>();
         fields.add("field1");
         fields.add("field2");
@@ -81,30 +78,30 @@ public class ParamsUtilsTest {
         String resultUrl = ParamsUtils.setFields(url, fields);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com?someParam=Some+value&fields=field1,field2,3field"));
+        assertThat(resultUrl, is(url + "&fields=field1,field2,3field"));
     }
 
     @Test
     public void testSetFieldsWithZeroFieldsAndComplexUrl() {
 
-        String url = "http://some-test-url.com?someParam=someValue";
+        String url = BASE_URL + "?someParam=someValue";
         List<String> fields = new ArrayList<>();
 
         String resultUrl = ParamsUtils.setFields(url, fields);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com?someParam=someValue"));
+        assertThat(resultUrl, is(url));
     }
 
     @Test
     public void testSetFieldsWithNullFieldsAndComplexUrl() {
 
-        String url = "http://some-test-url.com?someParam=someValue";
+        String url = BASE_URL + "?someParam=someValue";
 
         String resultUrl = ParamsUtils.setFields(url, null);
 
         assertNotNull(resultUrl);
-        assertThat(resultUrl, is("http://some-test-url.com?someParam=someValue"));
+        assertThat(resultUrl, is(url));
     }
 
     @Test
