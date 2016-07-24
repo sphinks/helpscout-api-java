@@ -44,7 +44,7 @@ public class WebhookApiTest {
      * connection: Keep-Alive
      */
     @Test
-    public void testForCustomEventHeader() {
+    public void CustomEventInWebhookTest() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -57,7 +57,7 @@ public class WebhookApiTest {
     }
 
     @Test
-    public void testForConversationEventHeader() {
+    public void ConversationEventInWebhookTest() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -76,7 +76,7 @@ public class WebhookApiTest {
      */
     @Test
     @SneakyThrows
-    public void testForCheckIfRequestIsValid() {
+    public void CheckIfWebhookIsValidTest() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
@@ -91,7 +91,7 @@ public class WebhookApiTest {
 
     @Test
     @SneakyThrows
-    public void testForReadingJsonData() {
+    public void ReadingWebhookJsonDataTest() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
