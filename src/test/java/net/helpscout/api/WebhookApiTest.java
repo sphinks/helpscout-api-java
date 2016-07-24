@@ -1,6 +1,7 @@
 package net.helpscout.api;
 
 import lombok.SneakyThrows;
+import net.helpscout.api.cbo.WebhookEventType;
 import net.helpscout.api.model.Customer;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class WebhookApiTest {
      * connection: Keep-Alive
      */
     @Test
-    public void basicTestForCustomEventHeader() {
+    public void testForCustomEventHeader() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -51,8 +52,21 @@ public class WebhookApiTest {
 
         Webhook webhook = new Webhook("SecretKey", httpServletRequest);
 
-        assertThat(webhook.getEventType(), equalTo("customer.created"));
-        assertTrue(webhook.isCustomerEvent());
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.CustomerCreated));
+        assertTrue(webhook.getEventType().isCustomerEvent());
+    }
+
+    @Test
+    public void testForConversationEventHeader() {
+
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader("X-HELPSCOUT-EVENT")).thenReturn("convo.note.created");
+
+        Webhook webhook = new Webhook("SecretKey", httpServletRequest);
+
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.NoteCreated));
+        assertTrue(webhook.getEventType().isConversationEvent());
     }
 
     /**
@@ -62,7 +76,7 @@ public class WebhookApiTest {
      */
     @Test
     @SneakyThrows
-    public void basicTestForCheckIfRequestIsValid() {
+    public void testForCheckIfRequestIsValid() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
@@ -75,12 +89,9 @@ public class WebhookApiTest {
         assertTrue(webhook.isValid());
     }
 
-    /**
-     * Simple test for getting customer object from Webhook class via JSON data
-     */
     @Test
     @SneakyThrows
-    public void basicTestForReadingJsonData() {
+    public void testForReadingJsonData() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
