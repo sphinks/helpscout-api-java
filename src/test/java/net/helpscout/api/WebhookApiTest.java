@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -44,7 +45,7 @@ public class WebhookApiTest {
      * connection: Keep-Alive
      */
     @Test
-    public void CustomEventInWebhookTest() {
+    public void testCustomEventInWebhook() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -54,10 +55,11 @@ public class WebhookApiTest {
 
         assertThat(webhook.getEventType(), equalTo(WebhookEventType.CustomerCreated));
         assertTrue(webhook.getEventType().isCustomerEvent());
+        assertFalse(webhook.getEventType().isConversationEvent());
     }
 
     @Test
-    public void ConversationEventInWebhookTest() {
+    public void testConversationEventInWebhook() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
@@ -67,6 +69,35 @@ public class WebhookApiTest {
 
         assertThat(webhook.getEventType(), equalTo(WebhookEventType.NoteCreated));
         assertTrue(webhook.getEventType().isConversationEvent());
+        assertFalse(webhook.getEventType().isCustomerEvent());
+    }
+
+    @Test
+    public void testUnknownEventInWebhook() {
+
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader("X-HELPSCOUT-EVENT")).thenReturn("some.wrong.event");
+
+        Webhook webhook = new Webhook("SecretKey", httpServletRequest);
+
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.Unknown));
+        assertFalse(webhook.getEventType().isConversationEvent());
+        assertFalse(webhook.getEventType().isCustomerEvent());
+    }
+
+    @Test
+    public void testNullValueInWebhook() {
+
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader("X-HELPSCOUT-EVENT")).thenReturn(null);
+
+        Webhook webhook = new Webhook("SecretKey", httpServletRequest);
+
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.Unknown));
+        assertFalse(webhook.getEventType().isConversationEvent());
+        assertFalse(webhook.getEventType().isCustomerEvent());
     }
 
     /**
@@ -76,7 +107,7 @@ public class WebhookApiTest {
      */
     @Test
     @SneakyThrows
-    public void CheckIfWebhookIsValidTest() {
+    public void testCheckIfWebhookIsValid() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
@@ -91,7 +122,7 @@ public class WebhookApiTest {
 
     @Test
     @SneakyThrows
-    public void ReadingWebhookJsonDataTest() {
+    public void testReadingWebhookJsonData() {
 
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(readJsonDataToString("webhook_customer")));
