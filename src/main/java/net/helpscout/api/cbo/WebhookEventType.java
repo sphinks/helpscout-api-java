@@ -7,6 +7,7 @@ package net.helpscout.api.cbo;
  */
 public enum WebhookEventType {
 
+    Unknown(0, "unknown"),
     Assigned(1, "convo.assigned"),
     Created(2, "convo.created"),
     Deleted(3, "convo.deleted"),
@@ -18,7 +19,8 @@ public enum WebhookEventType {
     AgentReplyCreated(9, "convo.agent.reply.create"),
     NoteCreated(10, "convo.note.created"),
     CustomerCreated(11, "customer.created"),
-    RatingReceived(12, "satisfaction.ratings");
+    RatingReceived(12, "satisfaction.ratings"),
+    TestEvent(13, "helpscout.test");
 
     private final int value;
     private final String label;
@@ -39,13 +41,13 @@ public enum WebhookEventType {
     private boolean isEventTypeOf(String eventType) {
         String event = this.getLabel();
         if (event != null) {
-            return event.substring(0, eventType.length()).equals(eventType);
+            return event.startsWith(eventType);
         }
         return false;
     }
 
     public boolean isTestEvent() {
-        return "helpscout.test".equals(this.getLabel());
+        return TestEvent.equals(findByLabel(this.getLabel()));
     }
 
     /**
@@ -70,7 +72,7 @@ public enum WebhookEventType {
                 return item;
             }
         }
-        return null;
+        return WebhookEventType.Unknown;
     }
 
     public static WebhookEventType findByLabel(String label) {
@@ -79,6 +81,6 @@ public enum WebhookEventType {
                 return item;
             }
         }
-        return null;
+        return WebhookEventType.Unknown;
     }
 }

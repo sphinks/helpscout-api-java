@@ -33,8 +33,31 @@ final public class Webhook {
      */
     public WebhookEventType getEventType() {
         return WebhookEventType.findByLabel(this.getHeader("X-HELPSCOUT-EVENT"));
-    }   
-        
+    }
+
+    public boolean isTestEvent() {
+        return getEventType().isTestEvent();
+    }
+
+    /**
+     * @deprecated Starting 1.6.2, consider to replace by {@link WebhookEventType#isConversationEvent()}<br>
+     * Is the current event a type of conversation event
+     * @return boolean
+     */
+    public boolean isConversationEvent() {
+        return getEventType().isConversationEvent();
+    }
+
+    /**
+     * @deprecated Starting 1.6.2, consider to replace by {@link WebhookEventType#isCustomerEvent()}<br>
+     * Is the current event a type of customer event
+     * @return boolean
+     */
+    public boolean isCustomerEvent() {
+        return getEventType().isCustomerEvent();
+    }
+
+
     /**
      * Returns true if the current request is a valid webhook issued from Help Scout, false otherwise.
      * @return boolean
