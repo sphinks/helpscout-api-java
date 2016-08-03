@@ -40,7 +40,7 @@ final public class Webhook {
     }
 
     /**
-     * @deprecated Starting 1.6.2, consider to replace by {@link WebhookEventType#isConversationEvent()}<br>
+     * @deprecated Starting 1.6.2, consider to replace with {@link WebhookEventType#isConversationEvent()}<br>
      * Is the current event a type of conversation event
      * @return boolean
      */
@@ -49,7 +49,7 @@ final public class Webhook {
     }
 
     /**
-     * @deprecated Starting 1.6.2, consider to replace by {@link WebhookEventType#isCustomerEvent()}<br>
+     * @deprecated Starting 1.6.2, consider to replace with {@link WebhookEventType#isCustomerEvent()}<br>
      * Is the current event a type of customer event
      * @return boolean
      */
