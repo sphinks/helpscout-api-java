@@ -25,11 +25,11 @@ import net.helpscout.api.model.report.user.ConversationStats;
 import net.helpscout.api.model.report.user.UserHappiness;
 import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static java.text.MessageFormat.format;
+import static net.helpscout.api.utils.JSONUtils.parseJson;
 import static net.helpscout.api.utils.ParamsUtils.getCustomerSearchParams;
 import static net.helpscout.api.utils.ParamsUtils.setFields;
 import static net.helpscout.api.utils.ParamsUtils.setParams;
@@ -37,34 +37,30 @@ import static net.helpscout.api.utils.ParamsUtils.setParams;
 public class ApiClient {
 
     private final static String DEFAULT_BASE_URL = "https://api.helpscout.net/v1/";
-    private final static String METHOD_GET = "GET";
-    private final static String METHOD_POST = "POST";
-    private final static String METHOD_PUT = "PUT";
-    private final static String METHOD_DELETE = "DELETE";
 
     private final static int HTTP_STATUS_OK = 200;
     private final static int HTTP_STATUS_CREATED = 201;
 
-    private String apiKey = "";
-    private String baseUrl = DEFAULT_BASE_URL;
-
     private static final ResultExtractor<Long> idExtractor = new IdExtractor();
     private static final ResultExtractor<String> hashExtractor = new HashExtractor();
+    private static final HTTPMethodWrapper httpMethodWrapper = new HTTPMethodWrapper();
 
     private static ApiClient instance = new ApiClient();
 
-    private ApiClient() {}
+    private ApiClient() {
+        httpMethodWrapper.setBaseUrl(DEFAULT_BASE_URL);
+    }
 
     public static ApiClient getInstance() {
         return instance;
     }
 
     public void setKey(String apiKey) {
-        this.apiKey = apiKey;
+        httpMethodWrapper.setApiKey(apiKey);
     }
 
     public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+        httpMethodWrapper.setBaseUrl(baseUrl);
     }
 
     /**
@@ -542,7 +538,7 @@ public class ApiClient {
         String url = "conversations/" + conversationID + "/thread-source/" + threadID + ".json";
         String json;
         try {
-            json = doGet(url, HTTP_STATUS_OK);
+            json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         } catch(RuntimeException e) {
             if (e.getCause() instanceof NotFoundException) {
                 json = null;
@@ -556,12 +552,6 @@ public class ApiClient {
             return new String(EncodeUtils.getDecoded(elem.getAsJsonObject().get("data").getAsString()));
         } 
         return null;
-    }
-
-    private JsonElement parseJson(String url, String json) {
-        LoggerFactory.getLogger(getClass()).trace("{}: {}", url, json);
-        JsonElement obj = (new JsonParser()).parse(json);
-        return obj;
     }
 
     /**
@@ -599,7 +589,7 @@ public class ApiClient {
             throw new ApiException("Invalid attachmentID in getAttachmentData");
         }
         String url = "attachments/" + attachmentID + "/data.json";
-        String json = doGet(url, HTTP_STATUS_OK);
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         JsonElement obj = parseJson(url, json);
         JsonElement elem  = obj.getAsJsonObject().get("item");
         return EncodeUtils.getDecoded(elem.getAsJsonObject().get("data").getAsString());
@@ -1027,7 +1017,7 @@ public class ApiClient {
      */
     public void createCustomer(Customer customer) throws ApiException {
         String json = new Gson().toJson(customer);
-        Long id = doPost("customers.json", json, HTTP_STATUS_CREATED, idExtractor);
+        Long id = httpMethodWrapper.doPost("customers.json", json, HTTP_STATUS_CREATED, idExtractor);
         customer.setId(id);
     }
 
@@ -1040,7 +1030,7 @@ public class ApiClient {
     public void updateCustomer(Customer customer) throws ApiException {
         GsonBuilder builder = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         String json = builder.create().toJson(customer, Customer.class);
-        doPut("customers/" + customer.getId() + ".json", json, HTTP_STATUS_OK);
+        httpMethodWrapper.doPut("customers/" + customer.getId() + ".json", json, HTTP_STATUS_OK);
     }
 
     /**
@@ -1076,7 +1066,7 @@ public class ApiClient {
             url.append("?imported=true");
         }
 
-        Long id = doPost(url.toString(), json, HTTP_STATUS_CREATED, idExtractor);
+        Long id = httpMethodWrapper.doPost(url.toString(), json, HTTP_STATUS_CREATED, idExtractor);
         conversation.setId(id);
     }
 
@@ -1115,7 +1105,7 @@ public class ApiClient {
                 url.append("?imported=true");
             }
 
-            doPost(url.toString(), json, HTTP_STATUS_CREATED, idExtractor);
+            httpMethodWrapper.doPost(url.toString(), json, HTTP_STATUS_CREATED, idExtractor);
         } catch (Exception ex) {
             throw new ApiException(ex.getMessage());
         }
@@ -1137,7 +1127,7 @@ public class ApiClient {
         GsonBuilder builder = new GsonBuilder();
         String json = builder.create().toJson(threadBody);
 
-        doPut("conversations/" + conversationId + "/threads/" + threadId + ".json", json, HTTP_STATUS_OK);
+        httpMethodWrapper.doPut("conversations/" + conversationId + "/threads/" + threadId + ".json", json, HTTP_STATUS_OK);
     }
 
     /**
@@ -1148,7 +1138,7 @@ public class ApiClient {
      */
     public void deleteConversation(Long id) throws ApiException {
         String url = "conversations/" + id + ".json";
-        doDelete(url, HTTP_STATUS_OK);
+        httpMethodWrapper.doDelete(url, HTTP_STATUS_OK);
     }
 
     /**
@@ -1165,7 +1155,7 @@ public class ApiClient {
                 .registerTypeAdapter(CustomFieldResponse.class, new CustomFieldResponseAdapter());
 
         String json = builder.create().toJson(conversation, Conversation.class);
-        doPut("conversations/" + conversation.getId() + ".json", json, HTTP_STATUS_OK);
+        httpMethodWrapper.doPut("conversations/" + conversation.getId() + ".json", json, HTTP_STATUS_OK);
     }
 
     /**
@@ -1178,7 +1168,7 @@ public class ApiClient {
      */
     public void createAttachment(Attachment attachment) throws ApiException {
         String json = new Gson().toJson(attachment);
-        String hash = doPost("attachments.json", json, HTTP_STATUS_CREATED, hashExtractor);
+        String hash = httpMethodWrapper.doPost("attachments.json", json, HTTP_STATUS_CREATED, hashExtractor);
         attachment.setHash(hash);
     }
 
@@ -1190,7 +1180,7 @@ public class ApiClient {
      */
     public void deleteAttachment(Long id) throws ApiException {
         String url = "attachments/" + id + ".json";
-        doDelete(url, HTTP_STATUS_OK);
+        httpMethodWrapper.doDelete(url, HTTP_STATUS_OK);
     }
 
     /**
@@ -1201,7 +1191,7 @@ public class ApiClient {
      */
     public void deleteNote(Long threadId) throws ApiException {
         String url = "notes/" + threadId + ".json";
-        doDelete(url, HTTP_STATUS_OK);
+        httpMethodWrapper.doDelete(url, HTTP_STATUS_OK);
     }
 
     /**
@@ -1237,7 +1227,7 @@ public class ApiClient {
      * @throws ApiException
      */
     public void runManualWorkflow(Long id, Long ticketId) throws ApiException {
-        doPost("workflows/" + id + "/conversations/" + ticketId + ".json", null, HTTP_STATUS_OK, idExtractor);
+        httpMethodWrapper.doPost("workflows/" + id + "/conversations/" + ticketId + ".json", null, HTTP_STATUS_OK, idExtractor);
     }
 
     /**
@@ -1252,7 +1242,7 @@ public class ApiClient {
         JsonObject obj = new JsonObject();
         obj.add("conversationIds", tickets);
         String json = new Gson().toJson(obj);
-        doPost("workflows/" + id + "/conversations.json", json, HTTP_STATUS_OK, idExtractor);
+        httpMethodWrapper.doPost("workflows/" + id + "/conversations.json", json, HTTP_STATUS_OK, idExtractor);
     }
     
     public ConversationsReport getConversationsReport(Map<String, String> queryParams) throws ApiException {
@@ -1262,7 +1252,7 @@ public class ApiClient {
 
     public List<DayStats> getBusiestTimeOfDayReport(Map<String, String> queryParams) throws ApiException {
         String url = setParams("reports/conversations/busy-times.json", queryParams);
-        String json = doGet(url, HTTP_STATUS_OK);
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         JsonElement busyTimes = (new JsonParser()).parse(json);
 
         return JSONUtils.getPageItems(busyTimes, DayStats.class);
@@ -1415,12 +1405,12 @@ public class ApiClient {
     }
 
     private <T> T getObject(String url, Class<T> clazzType) throws ApiException {
-        String json = doGet(url, HTTP_STATUS_OK);
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         return Parser.getInstance().getObject(json, clazzType);     
     }
 
     private <T> T getItem(String url, Class<T> clazzType, int expectedCode) throws ApiException {
-        String json = doGet(url, expectedCode);
+        String json = httpMethodWrapper.doGet(url, expectedCode);
         JsonElement obj = parseJson(url, json);
         JsonElement item = obj.getAsJsonObject().get("item");
 
@@ -1432,7 +1422,7 @@ public class ApiClient {
     }
     
     private <T> Page<T> getPage(String url, Class<T> clazzType, String wrapperObjectName) throws ApiException {
-        String json = doGet(url, HTTP_STATUS_OK);
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
 
         JsonObject outerObj = parseJson(url, json).getAsJsonObject();
         JsonObject innerObj = outerObj.get(wrapperObjectName).getAsJsonObject();
@@ -1442,52 +1432,10 @@ public class ApiClient {
 
     private <T> Page<T> getPage(String url, Map<String,String> params, Class<T> clazzType, int expectedCode) throws ApiException {
         url = setParams(url, params);
-        String json = doGet(url, HTTP_STATUS_OK);
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         JsonElement obj = parseJson(url, json);
         
         return JSONUtils.objectToPage(obj.getAsJsonObject(), clazzType);
     }
     
-    private <T> T doPost(String url, String requestBody, int expectedCode, ResultExtractor<T> extractor) throws ApiException {
-
-        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_POST, expectedCode, requestBody)) {
-            return extractor.extract(conn);
-        } catch(ApiException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private void doPut(String url, String requestBody, int expectedCode) throws ApiException {
-
-        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_PUT, expectedCode, requestBody)) {
-        } catch(ApiException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private String doGet(String url, int expectedCode) throws ApiException {
-        String response    = null;
-        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_GET, expectedCode)) {
-            response = conn.getResponse();
-        } catch(ApiException e) {
-            throw e;
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-        return response;
-    }
-
-    private void doDelete(String url, int expectedCode) throws ApiException {
-        try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_DELETE, expectedCode)) {
-        } catch(ApiException e) {
-            throw e;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
 }

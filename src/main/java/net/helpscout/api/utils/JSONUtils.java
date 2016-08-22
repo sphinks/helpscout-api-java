@@ -3,8 +3,11 @@ package net.helpscout.api.utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.helpscout.api.ApiClient;
 import net.helpscout.api.Page;
 import net.helpscout.api.Parser;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -55,5 +58,11 @@ public class JSONUtils {
             }
         }
         return col;
+    }
+
+    public static JsonElement parseJson(String url, String json) {
+        LoggerFactory.getLogger(ApiClient.class).trace("{}: {}", url, json);
+        JsonElement obj = (new JsonParser()).parse(json);
+        return obj;
     }
 }
