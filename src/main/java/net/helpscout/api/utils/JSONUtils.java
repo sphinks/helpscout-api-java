@@ -60,9 +60,4 @@ public class JSONUtils {
         return col;
     }
 
-    public static JsonElement parseJson(String url, String json) {
-        LoggerFactory.getLogger(ApiClient.class).trace("{}: {}", url, json);
-        JsonElement obj = (new JsonParser()).parse(json);
-        return obj;
-    }
 }

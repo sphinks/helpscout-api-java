@@ -25,11 +25,11 @@ import net.helpscout.api.model.report.user.ConversationStats;
 import net.helpscout.api.model.report.user.UserHappiness;
 import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static java.text.MessageFormat.format;
-import static net.helpscout.api.utils.JSONUtils.parseJson;
 import static net.helpscout.api.utils.ParamsUtils.getCustomerSearchParams;
 import static net.helpscout.api.utils.ParamsUtils.setFields;
 import static net.helpscout.api.utils.ParamsUtils.setParams;
@@ -1252,10 +1252,7 @@ public class ApiClient {
 
     public List<DayStats> getBusiestTimeOfDayReport(Map<String, String> queryParams) throws ApiException {
         String url = setParams("reports/conversations/busy-times.json", queryParams);
-        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
-        JsonElement busyTimes = (new JsonParser()).parse(json);
-
-        return JSONUtils.getPageItems(busyTimes, DayStats.class);
+        return getPageItems("reports/conversations/busy-times.json", DayStats.class);
     }
 
     public DatesAndCounts getNewConversationsReport(Map<String, String> queryParams) throws ApiException {
@@ -1416,7 +1413,7 @@ public class ApiClient {
 
         return Parser.getInstance().getObject(item, clazzType);
     }
-    
+
     private <T> Page<T> getPage(String url, Class<T> clazzType, int expectedCode) throws ApiException {
         return getPage(url, null, clazzType, expectedCode);
     }
@@ -1436,6 +1433,19 @@ public class ApiClient {
         JsonElement obj = parseJson(url, json);
         
         return JSONUtils.objectToPage(obj.getAsJsonObject(), clazzType);
+    }
+
+    private <T> ArrayList<T> getPageItems(String url, Class<T> clazzType) throws ApiException {
+        String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
+        JsonElement obj = parseJson(url, json);
+
+        return JSONUtils.getPageItems(obj, clazzType);
+    }
+
+    private JsonElement parseJson(String url, String json) {
+        LoggerFactory.getLogger(getClass()).trace("{}: {}", url, json);
+        JsonElement obj = (new JsonParser()).parse(json);
+        return obj;
     }
     
 }
