@@ -1,5 +1,7 @@
 package net.helpscout.api;
 
+import lombok.Getter;
+
 /**
  * @Author: ivan
  * Date: 22.08.16
@@ -12,11 +14,10 @@ public class HTTPMethodWrapper {
     private final static String METHOD_PUT = "PUT";
     private final static String METHOD_DELETE = "DELETE";
 
+    @Getter
     private String apiKey;
+    @Getter
     private String baseUrl;
-
-    public HTTPMethodWrapper() {
-    }
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
