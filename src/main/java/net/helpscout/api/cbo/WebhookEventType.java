@@ -1,10 +1,15 @@
 package net.helpscout.api.cbo;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * @Author: ivan
  * Date: 23.07.16
  * Time: 0:28
  */
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum WebhookEventType {
 
     Unknown(0, "unknown"),
@@ -22,21 +27,10 @@ public enum WebhookEventType {
     RatingReceived(12, "satisfaction.ratings"),
     TestEvent(13, "helpscout.test");
 
+    @Getter
     private final int value;
+    @Getter
     private final String label;
-
-    private WebhookEventType(int value, String label) {
-        this.value = value;
-        this.label = label;
-    }
-
-    public int getValue() {
-        return this.value;
-    }
-
-    public String getLabel() {
-        return this.label;
-    }
 
     private boolean isEventTypeOf(String eventType) {
         String event = this.getLabel();
