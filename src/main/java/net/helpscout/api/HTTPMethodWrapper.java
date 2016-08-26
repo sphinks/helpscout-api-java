@@ -1,6 +1,7 @@
 package net.helpscout.api;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @Author: ivan
@@ -15,17 +16,11 @@ public class HTTPMethodWrapper {
     private final static String METHOD_DELETE = "DELETE";
 
     @Getter
+    @Setter
     private String apiKey;
     @Getter
+    @Setter
     private String baseUrl;
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
 
     public <T> T doPost(String url, String requestBody, int expectedCode, ResultExtractor<T> extractor) throws ApiException {
 
