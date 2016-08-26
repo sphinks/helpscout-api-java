@@ -1,6 +1,5 @@
 package net.helpscout.api;
 
-import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -15,10 +14,8 @@ public class HTTPMethodWrapper {
     private final static String METHOD_PUT = "PUT";
     private final static String METHOD_DELETE = "DELETE";
 
-    @Getter
     @Setter
     private String apiKey;
-    @Getter
     @Setter
     private String baseUrl;
 
