@@ -13,9 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -81,7 +79,22 @@ public class WebhookApiTest {
 
         Webhook webhook = new Webhook("SecretKey", httpServletRequest);
 
-        assertThat(webhook.getEventType(), equalTo(WebhookEventType.Unknown));
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.Unknown));;
+        assertFalse(webhook.getEventType().isConversationEvent());
+        assertFalse(webhook.getEventType().isCustomerEvent());
+    }
+
+    @Test
+    public void testTestEventInWebhook() {
+
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        when(httpServletRequest.getHeader("X-HELPSCOUT-EVENT")).thenReturn("helpscout.test");
+
+        Webhook webhook = new Webhook("SecretKey", httpServletRequest);
+
+        assertThat(webhook.getEventType(), equalTo(WebhookEventType.TestEvent));
+        assertTrue(webhook.isTestEvent());
         assertFalse(webhook.getEventType().isConversationEvent());
         assertFalse(webhook.getEventType().isCustomerEvent());
     }

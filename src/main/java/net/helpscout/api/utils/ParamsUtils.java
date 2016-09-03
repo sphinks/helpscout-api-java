@@ -1,6 +1,9 @@
 package net.helpscout.api.utils;
 
 import lombok.SneakyThrows;
+import net.helpscout.api.ApiException;
+import net.helpscout.api.Page;
+import net.helpscout.api.model.SearchConversation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLEncoder;
@@ -63,6 +66,19 @@ public class ParamsUtils {
         if (page != null && page > 0) {
             params.put("page", String.valueOf(page));
         }
+        return params;
+    }
+
+    public static Map<String, String> getSearchParamsMap(String query, String sortField, String sortOrder, Integer page) throws ApiException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("query", query);
+        if (sortField != null && sortField.trim().length() > 0) {
+            params.put("sortField", sortField);
+        }
+        if (sortOrder != null && sortOrder.trim().length() > 0) {
+            params.put("sortOrder", sortOrder);
+        }
+        params.put("page", String.valueOf(page));
         return params;
     }
 

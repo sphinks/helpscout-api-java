@@ -25,6 +25,7 @@ import net.helpscout.api.model.report.user.ConversationStats;
 import net.helpscout.api.model.report.user.UserHappiness;
 import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
+import net.helpscout.api.utils.ParamsUtils;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -708,15 +709,7 @@ public class ApiClient {
      * @throws ApiException
      */
     public Page<SearchConversation> searchConversations(String query, String sortField, String sortOrder, Integer page) throws ApiException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("query", query);
-        if (sortField != null && sortField.trim().length() > 0) {
-            params.put("sortField", sortField);
-        }
-        if (sortOrder != null && sortOrder.trim().length() > 0) {
-            params.put("sortOrder", sortOrder);
-        }
-        params.put("page", String.valueOf(page));
+        Map<String, String> params = ParamsUtils.getSearchParamsMap(query, sortField, sortOrder, page);
         return getPage("search/conversations.json", params, SearchConversation.class);
     }
 
@@ -731,15 +724,7 @@ public class ApiClient {
      * @throws ApiException
      */
     public Page<SearchCustomer> searchCustomers(String query, String sortField, String sortOrder, Integer page) throws ApiException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("query", query);
-        if (sortField != null && sortField.trim().length() > 0) {
-            params.put("sortField", sortField);
-        }
-        if (sortOrder != null && sortOrder.trim().length() > 0) {
-            params.put("sortOrder", sortOrder);
-        }
-        params.put("page", String.valueOf(page));
+        Map<String, String> params = ParamsUtils.getSearchParamsMap(query, sortField, sortOrder, page);
         return getPage("search/customers.json", params, SearchCustomer.class);
     }
 

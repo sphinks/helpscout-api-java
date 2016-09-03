@@ -1,6 +1,7 @@
 package net.helpscout.api;
 
 import lombok.SneakyThrows;
+import net.helpscout.api.model.Conversation;
 import net.helpscout.api.model.customfield.CustomField;
 import net.helpscout.api.model.customfield.CustomFieldOption;
 import net.helpscout.api.model.customfield.CustomFieldType;
@@ -15,6 +16,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static net.helpscout.api.model.customfield.CustomFieldType.*;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -57,6 +59,17 @@ public class MailboxApiTest extends AbstractApiClientTest {
 
         Mailbox mailbox = client.getMailbox(6L);
         assertNull(mailbox.getCustomFields());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsForFolder() {
+        givenThat(get(urlEqualTo("/v1/mailboxes/1/folders/10/conversations.json"))
+                .willReturn(aResponse().withStatus(HTTP_OK)
+                        .withBody(getResponse("conversations_list"))));
+
+        Page<Conversation> conversations = client.getConversationsForFolder(1L, 10L);
+        assertNotNull(conversations);
     }
 
     private CustomField.CustomFieldBuilder fieldBuilder() {

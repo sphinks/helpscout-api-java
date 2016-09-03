@@ -9,6 +9,7 @@ import org.hamcrest.Matcher;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -18,6 +19,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ConversationApiTest extends AbstractApiClientTest {
@@ -127,6 +130,42 @@ public class ConversationApiTest extends AbstractApiClientTest {
         Conversation conversation = client.getConversation(10L);
         assertThat(conversation.getOwner().getType(), equalTo(PersonType.Team));
     }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationWithSpecifiedFields() {
+        givenThat(get(urlEqualTo("/v1/conversations/10.json?fields=id,subject"))
+                .willReturn(aResponse().withStatus(HTTP_OK)
+                        .withBody(getResponse("conversation_short"))));
+
+        Conversation conversation = client.getConversation(10L, Arrays.asList("id", "subject"));
+        assertThat(conversation.getSubject(), notNullValue());
+        assertThat(conversation.getId(), notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnThreadSource() {
+        givenThat(get(urlEqualTo("/v1/conversations/10/thread-source/3124897.json"))
+                .willReturn(aResponse().withStatus(HTTP_OK)
+                        .withBody(getResponse("thread_source"))));
+
+        String source = client.getThreadSource(10L, 3124897L);
+        assertThat(source, equalTo(""));
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
+    public void shouldThreadSourceThrowExceptionWrongConversationId() {
+        client.getThreadSource(null, 3124897L);
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
+    public void shouldThreadSourceThrowExceptionWrongThreadId() {
+        client.getThreadSource(10L, null);
+    }
+
 
     private SingleLineCustomFieldResponse singleLineCustomField(Long id, String name, String value) {
         val field = new SingleLineCustomFieldResponse();
