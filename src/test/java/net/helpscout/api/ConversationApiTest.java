@@ -156,6 +156,18 @@ public class ConversationApiTest extends AbstractApiClientTest {
 
     @Test(expected=ApiException.class)
     @SneakyThrows
+    public void shouldGetConversationThrowExceptionNullConversationId() {
+        client.getConversation((Long) null, Arrays.asList("id"));
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
+    public void shouldGetConversationSourceThrowExceptionConversationId() {
+        client.getConversation(-1L, Arrays.asList("id"));
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
     public void shouldThreadSourceThrowExceptionWrongConversationId() {
         client.getThreadSource(null, 3124897L);
     }

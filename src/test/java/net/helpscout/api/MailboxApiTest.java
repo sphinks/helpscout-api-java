@@ -8,6 +8,7 @@ import net.helpscout.api.model.customfield.CustomFieldType;
 import net.helpscout.api.model.Mailbox;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +71,18 @@ public class MailboxApiTest extends AbstractApiClientTest {
 
         Page<Conversation> conversations = client.getConversationsForFolder(1L, 10L);
         assertNotNull(conversations);
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
+    public void shouldGetMailboxThrowExceptionNullMailboxId() {
+        client.getMailbox((Long)null, Arrays.asList("id"));
+    }
+
+    @Test(expected=ApiException.class)
+    @SneakyThrows
+    public void shouldGetMailboxThrowExceptionWrongMailboxId() {
+        client.getMailbox(-1L, Arrays.asList("id"));
     }
 
     private CustomField.CustomFieldBuilder fieldBuilder() {
