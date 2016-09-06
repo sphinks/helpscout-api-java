@@ -1,0 +1,146 @@
+{
+  "filterTags": [
+    {
+      "name": "tag a",
+      "id": 2
+    },
+    {
+      "name": "tag b",
+      "id": 3
+    }
+  ],
+  "busiestDay": {
+    "day": 3,
+    "hour": 0,
+    "count": 411
+  },
+  "busyTimeStart": 11,
+  "busyTimeEnd": 13,
+  "current": {
+    "startDate": "2015-01-01T00:00:00Z",
+    "endDate": "2015-01-31T23:59:59Z",
+    "totalConversations": 1816,
+    "conversationsCreated": 1698,
+    "newConversations": 1698,
+    "customers": 1302,
+    "conversationsPerDay": 60
+  },
+  "previous": {
+    "startDate": "2014-01-01T00:00:00Z",
+    "endDate": "2014-01-01T23:59:59Z",
+    "totalConversations": 2080,
+    "conversationsCreated": 1976,
+    "newConversations": 1976,
+    "customers": 1479,
+    "conversationsPerDay": 67
+  },
+  "deltas": {
+    "newConversations": -14.068825910931,
+    "totalConversations": -12.692307692308,
+    "customers": -11.967545638945,
+    "conversationsCreated": -14.068825910931,
+    "conversationsPerDay": -10.44776119403
+  },
+  "tags": {
+    "count": 351,
+    "top": [
+      {
+        "id": 1,
+        "count": 1465,
+        "previousCount": 1651,
+        "percent": 80.671806167401,
+        "previousPercent": 79.375,
+        "deltaPercent": 1.2968061674009
+      },
+      {
+        "name": "tag a",
+        "id": 2,
+        "count": 51,
+        "previousCount": 63,
+        "percent": 2.8083700440529,
+        "previousPercent": 3.0288461538462,
+        "deltaPercent": -0.22047610979329
+      },
+      {
+        "name": "tag b",
+        "id": 406031,
+        "count": 24,
+        "previousCount": 20,
+        "percent": 1.3215859030837,
+        "previousPercent": 0.96153846153846,
+        "deltaPercent": 0.36004744154524
+      }
+    ]
+  },
+  "customers": {
+    "count": 1816,
+    "top": [
+      {
+        "count": 31,
+        "deltaPercent": 0.31281768891901,
+        "id": 1,
+        "name": "John Smith",
+        "percent": 1.7070484581498,
+        "previousCount": 29,
+        "previousPercent": 1.3942307692308
+      },
+      {
+        "count": 12,
+        "deltaPercent": -0.10843781768892,
+        "id": 2,
+        "name": "Mary Jones",
+        "percent": 0.66079295154185,
+        "previousCount": 16,
+        "previousPercent": 0.76923076923077
+      }
+    ]
+  },
+  "replies": {
+    "count": 109,
+    "top": [
+      {
+        "name": "Saved Reply 1",
+        "id": 1,
+        "mailboxId": 1,
+        "count": 16,
+        "previousCount": 9,
+        "percent": 0.88105726872247,
+        "previousPercent": 0.43269230769231,
+        "deltaPercent": 0.44836496103016
+      },
+      {
+        "name": "Saved Reply 2",
+        "id": 2,
+        "mailboxId": 1,
+        "count": 13,
+        "previousCount": 12,
+        "percent": 0.715859030837,
+        "previousPercent": 0.57692307692308,
+        "deltaPercent": 0.13893595391393
+      }
+    ]
+  },
+  "workflows": {
+    "count": 240,
+    "top": [
+      {
+        "name": "Workflow 1",
+        "id": 1,
+        "count": 90,
+        "previousCount": 82,
+        "percent": 4.9559471365639,
+        "previousPercent": 3.9423076923077,
+        "deltaPercent": 1.0136394442562
+      },
+      {
+        "name": "Workflow 2",
+        "id": 2,
+        "count": 75,
+        "previousCount": 91,
+        "percent": 4.1299559471366,
+        "previousPercent": 4.375,
+        "deltaPercent": -0.24504405286344
+      }
+    ]
+  }
+}

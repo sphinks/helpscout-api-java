@@ -1239,7 +1239,7 @@ public class ApiClient {
 
     public List<DayStats> getBusiestTimeOfDayReport(Map<String, String> queryParams) throws ApiException {
         String url = setParams("reports/conversations/busy-times.json", queryParams);
-        return getPageItems("reports/conversations/busy-times.json", DayStats.class);
+        return getPageItems(url, DayStats.class);
     }
 
     public DatesAndCounts getNewConversationsReport(Map<String, String> queryParams) throws ApiException {
