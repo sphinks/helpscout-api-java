@@ -1,0 +1,68 @@
+{
+  "current": {
+    "failedResult": 25.27642465011985,
+    "docsViewedPerVisit": 1.2078855817549286,
+    "foundAnAnswerResult": 73.6410732235367,
+    "visitors": 12933,
+    "browseAction": 87.39218205175263,
+    "searchAction": 12.607817948247385,
+    "sentAnEmailResult": 1.0825021263434627
+  },
+  "previous": {
+    "failedResult": 22.87430683918669,
+    "docsViewedPerVisit": 1.177713229469237,
+    "foundAnAnswerResult": 76.34671243728545,
+    "visitors": 15148,
+    "browseAction": 89.54703832752612,
+    "searchAction": 10.452961672473867,
+    "sentAnEmailResult": 0.7789807235278585
+  },
+  "popularSearches": [
+    {
+      "deltaPercent": 30.434782608695656,
+      "id": "api",
+      "results": 32,
+      "count": 90,
+      "previousCount": 69
+    }
+  ],
+  "failedSearches": [
+    {
+      "deltaPercent": 192.85714285714286,
+      "id": "ldap",
+      "count": 41,
+      "previousCount": 14
+    }
+  ],
+  "topArticles": [
+    {
+      "deltaPercent": -9.49685534591195,
+      "id": "...",
+      "siteId": "...",
+      "count": 1439,
+      "collectionId": "...",
+      "name": "Custom SMTP settings for Gmail",
+      "previousCount": 1590
+    }
+  ],
+  "topCategories": [
+    {
+      "deltaPercent": -6.845324788814448,
+      "id": "...",
+      "articles": 13,
+      "siteId": "...",
+      "count": 3198,
+      "name": "Productivity",
+      "previousCount": 3433
+    }
+  ],
+  "deltas": {
+    "failedResult": 2.4021178109331593,
+    "docsViewedPerVisit": 2.561943903720043,
+    "foundAnAnswerResult": -2.7056392137487535,
+    "visitors": -14.622392395035643,
+    "browseAction": -2.154856275773497,
+    "searchAction": 2.1548562757735183,
+    "sentAnEmailResult": 0.30352140281560414
+  }
+}

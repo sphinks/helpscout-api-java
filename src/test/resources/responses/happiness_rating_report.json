@@ -1,0 +1,21 @@
+{
+  "pages": 1,
+  "page": 1,
+  "count": 10,
+  "results": [
+    {
+      "number": 59504,
+      "id": 1545009,
+      "type": "email",
+      "threadid": 2952132,
+      "threadCreatedAt": "2015-01-14T15:09:39Z",
+      "ratingId": 1,
+      "ratingCustomerId": 449122,
+      "ratingComments": "",
+      "ratingCreatedAt": "2015-01-14T15:10:40Z",
+      "ratingCustomerName": "john@example.com",
+      "ratingUserId": 4,
+      "ratingUserName": "John Smith"
+    }
+  ]
+}
