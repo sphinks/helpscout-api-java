@@ -1,6 +1,7 @@
 package net.helpscout.api;
 
 import lombok.SneakyThrows;
+import net.helpscout.api.cbo.Status;
 import net.helpscout.api.model.report.common.DatesAndCounts;
 import net.helpscout.api.model.report.common.DatesAndElapsedTimes;
 import net.helpscout.api.model.report.common.Rating;
@@ -10,6 +11,9 @@ import net.helpscout.api.model.report.conversations.DayStats;
 import net.helpscout.api.model.report.docs.DocsReport;
 import net.helpscout.api.model.report.happiness.HappinessReport;
 import net.helpscout.api.model.report.productivity.ProductivityReport;
+import net.helpscout.api.model.report.team.TeamReport;
+import net.helpscout.api.model.report.user.ConversationStats;
+import net.helpscout.api.model.report.user.UserHappiness;
 import net.helpscout.api.model.report.user.UserReport;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -134,7 +138,7 @@ public class ReportApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldReturnHappinessRatingReport() {
-        stubGETWithLikeUrl("/v1/reports/happiness/ratings.json?.*", "happiness_rating_report");
+        stubGETWithLikeUrl("/v1/reports/happiness/ratings.json?.*", "rating_report");
 
         Page<Rating> report = client.getHappinessRatings(reportParameters);
 
@@ -205,26 +209,14 @@ public class ReportApiTest extends AbstractApiClientTest {
 
     @Test
     @SneakyThrows
-    public void shouldReturnRepliesSentReport() {
-        stubGETWithLikeUrl("/v1/reports/productivity/replies-sent.json?.*", "dates_and_counts_report");
+    public void shouldReturnTeamReport() {
+        stubGETWithLikeUrl("/v1/reports/team.json?.*", "team_report");
 
-        DatesAndCounts report = client.getRepliesSent(reportParameters);
-
-        assertNotNull(report);
-        assertEquals(5, report.getCurrent().size());
-        assertEquals(new Integer(577), report.getPrevious().get(2).getCount());
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReturnResolvedReport() {
-        stubGETWithLikeUrl("/v1/reports/productivity/resolved.json?.*", "dates_and_counts_report");
-
-        DatesAndCounts report = client.getResolved(reportParameters);
+        TeamReport report = client.getTeamReport(reportParameters);
 
         assertNotNull(report);
-        assertEquals(5, report.getCurrent().size());
-        assertEquals(new Integer(577), report.getPrevious().get(2).getCount());
+        assertEquals(1, report.getFilterTags().size());
+        assertEquals("John Smith", report.getUsers().get(0).getName());
     }
 
     @Test
@@ -261,6 +253,42 @@ public class ReportApiTest extends AbstractApiClientTest {
         assertNotNull(report);
         assertEquals(1, report.getFilterTags().size());
         assertEquals("John Smith", report.getUser().getName());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnRepliesSentReport() {
+        stubGETWithLikeUrl("/v1/reports/productivity/replies-sent.json?.*", "dates_and_counts_report");
+
+        DatesAndCounts report = client.getRepliesSent(reportParameters);
+
+        assertNotNull(report);
+        assertEquals(5, report.getCurrent().size());
+        assertEquals(new Integer(577), report.getPrevious().get(2).getCount());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnResolvedReport() {
+        stubGETWithLikeUrl("/v1/reports/productivity/resolved.json?.*", "dates_and_counts_report");
+
+        DatesAndCounts report = client.getResolved(reportParameters);
+
+        assertNotNull(report);
+        assertEquals(5, report.getCurrent().size());
+        assertEquals(new Integer(577), report.getPrevious().get(2).getCount());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnUserConversationHistoryReport() {
+        stubGETWithLikeUrl("/v1/reports/user/conversation-history.json?.*", "conversation_stat_report");
+
+        Page<ConversationStats> report = client.getUserConversationHistory(reportParameters);
+
+        assertNotNull(report);
+        assertEquals(1, report.getItems().size());
+        assertEquals(Status.Closed, report.getItems().get(0).getStatus());
     }
 
     @Test
@@ -309,6 +337,30 @@ public class ReportApiTest extends AbstractApiClientTest {
         assertNotNull(report);
         assertEquals(1, report.getItems().size());
         assertEquals("Sample subject", report.getItems().get(0).getSubject());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnUserHappinessReport() {
+        stubGETWithLikeUrl("/v1/reports/user/happiness.json?.*", "user_happiness_report");
+
+        UserHappiness report = client.getUserHappinessReport(reportParameters);
+
+        assertNotNull(report);
+        assertEquals(1, report.getFilterTags().size());
+        assertEquals("sample-tag", report.getFilterTags().get(0).getName());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnUserRatingReport() {
+        stubGETWithLikeUrl("/v1/reports/user/ratings.json?.*", "rating_report");
+
+        Page<Rating> report = client.getUserRatings(reportParameters);
+
+        assertNotNull(report);
+        assertEquals(1, report.getItems().size());
+        assertEquals("john@example.com", report.getItems().get(0).getRatingCustomerName());
     }
 
 }

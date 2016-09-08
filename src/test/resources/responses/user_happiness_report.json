@@ -1,0 +1,43 @@
+{
+  "filterTags": [
+    {
+      "id": 123,
+      "name": "sample-tag"
+    }
+  ],
+  "current": {
+    "ratingsPercent": 35.77981651376147,
+    "okay": 30.909090909090907,
+    "great": 37.27272727272727,
+    "happinessScore": 5.454545454545457,
+    "okayCount": 34,
+    "totalCustomersWithRatings": 39,
+    "notGoodCount": 35,
+    "ratingsCount": 110,
+    "notGood": 31.818181818181817,
+    "greatCount": 41,
+    "totalCustomers": 109
+  },
+  "previous": {
+    "ratingsPercent": 32.03047366677708,
+    "great": 31.65735567970205,
+    "okay": 36.49906890130354,
+    "happinessScore": -0.1862197392923619,
+    "okayCount": 392,
+    "totalCustomersWithRatings": 967,
+    "notGoodCount": 342,
+    "ratingsCount": 1074,
+    "notGood": 31.843575418994412,
+    "greatCount": 340,
+    "totalCustomers": 3019
+  },
+  "deltas": {
+    "okay": -5.589977992212631,
+    "great": 5.615371593025223,
+    "okayCount": -91.3265306122449,
+    "happinessScore": 5.640765193837819,
+    "notGoodCount": -89.76608187134502,
+    "notGood": -0.02539360081259545,
+    "greatCount": -87.94117647058823
+  }
+}
