@@ -2,6 +2,7 @@ package net.helpscout.api;
 
 import lombok.SneakyThrows;
 import net.helpscout.api.model.Conversation;
+import net.helpscout.api.model.MailboxUser;
 import net.helpscout.api.model.customfield.CustomField;
 import net.helpscout.api.model.customfield.CustomFieldOption;
 import net.helpscout.api.model.customfield.CustomFieldType;
@@ -10,6 +11,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -26,9 +28,7 @@ public class MailboxApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldReturnCustomFields_WhenDefined() {
-        givenThat(get(urlEqualTo("/v1/mailboxes/5.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("mailbox_5"))));
+        stubGET("/v1/mailboxes/5.json", "mailbox_5");
 
         Mailbox mailbox = client.getMailbox(5L);
 
@@ -54,9 +54,7 @@ public class MailboxApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldParseMailbox_WhenCustomFieldsAreNotPresent() {
-        givenThat(get(urlEqualTo("/v1/mailboxes/6.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("mailbox_6"))));
+        stubGET("/v1/mailboxes/6.json", "mailbox_6");
 
         Mailbox mailbox = client.getMailbox(6L);
         assertNull(mailbox.getCustomFields());
@@ -64,13 +62,41 @@ public class MailboxApiTest extends AbstractApiClientTest {
 
     @Test
     @SneakyThrows
-    public void shouldReturnConversationsForFolder() {
-        givenThat(get(urlEqualTo("/v1/mailboxes/1/folders/10/conversations.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversations_list"))));
+    public void shouldReturnUsersByMailbox() {
+        stubGET("/v1/mailboxes/1/users.json", "users_by_mailbox");
 
-        Page<Conversation> conversations = client.getConversationsForFolder(1L, 10L);
-        assertNotNull(conversations);
+        Page<MailboxUser> mailboxUsers = client.getUsersForMailbox(1L);
+        assertNotNull(mailboxUsers);
+        assertThat(mailboxUsers.getItems().size(), equalTo(1));
+        assertThat(mailboxUsers.getItems().get(0).getEmail(), equalTo("jack.sprout@gmail.com"));
+
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnUsersByMailboxWithSelectedFields() {
+        stubGETWithLikeUrl("/v1/mailboxes/1/users.json?.*", "users_by_mailbox_with_fields");
+
+        Page<MailboxUser> mailboxUsers = client.getUsersForMailbox(1L, Arrays.asList("id", "lastName"));
+        assertNotNull(mailboxUsers);
+        assertThat(mailboxUsers.getItems().size(), equalTo(1));
+        assertThat(mailboxUsers.getItems().get(0).getLastName(), equalTo("Sprout"));
+
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnUsersByMailboxWithQueryParams() {
+        stubGETWithLikeUrl("/v1/mailboxes/1/users.json?.*", "users_by_mailbox");
+
+        HashMap<String, String> query = new HashMap<>();
+        query.put("id", "1234");
+
+        Page<MailboxUser> mailboxUsers = client.getUsersForMailbox(1L, query);
+        assertNotNull(mailboxUsers);
+        assertThat(mailboxUsers.getItems().size(), equalTo(1));
+        assertThat(mailboxUsers.getItems().get(0).getEmail(), equalTo("jack.sprout@gmail.com"));
+
     }
 
     @Test(expected=ApiException.class)

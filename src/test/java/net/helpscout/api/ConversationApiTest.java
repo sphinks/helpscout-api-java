@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ConversationApiTest extends AbstractApiClientTest {
@@ -177,6 +178,15 @@ public class ConversationApiTest extends AbstractApiClientTest {
         client.getThreadSource(10L, null);
     }
 
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsForFolder() {
+        stubGET("/v1/mailboxes/1/folders/10/conversations.json", "conversations_list");
+
+        Page<Conversation> conversations = client.getConversationsForFolder(1L, 10L);
+        assertNotNull(conversations);
+    }
 
     private SingleLineCustomFieldResponse singleLineCustomField(Long id, String name, String value) {
         val field = new SingleLineCustomFieldResponse();
