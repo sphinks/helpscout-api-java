@@ -1,12 +1,15 @@
 package net.helpscout.api;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.helpscout.api.cbo.PersonType;
 import net.helpscout.api.model.Conversation;
+import net.helpscout.api.model.SearchConversation;
 import net.helpscout.api.model.customfield.*;
 import org.hamcrest.Matcher;
 import org.joda.time.LocalDate;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -122,6 +125,17 @@ public class ConversationApiTest extends AbstractApiClientTest {
 
     @Test
     @SneakyThrows
+    public void shouldReturnSearchResultOfConvo() {
+        stubGETWithLikeUrl("/v1/search/conversations.json?.*", "conversation_search");
+
+        Page<SearchConversation> conversations = client.searchConversations("subject:\"I need help!\"", null, null, 1);
+
+        assertThat(conversations.getItems().size(), equalTo(1));
+        assertThat(conversations.getItems().get(0).getCustomerName(), equalTo("John Appleseed"));
+    }
+
+    @Test
+    @SneakyThrows
     public void shouldSetTeamPersonType() {
         givenThat(get(urlEqualTo("/v1/conversations/10.json"))
                 .willReturn(aResponse().withStatus(HTTP_OK)
@@ -154,25 +168,25 @@ public class ConversationApiTest extends AbstractApiClientTest {
         assertThat(source, equalTo(""));
     }
 
-    @Test(expected=ApiException.class)
+    @Test(expected = ApiException.class)
     @SneakyThrows
     public void shouldGetConversationThrowExceptionNullConversationId() {
         client.getConversation((Long) null, Arrays.asList("id"));
     }
 
-    @Test(expected=ApiException.class)
+    @Test(expected = ApiException.class)
     @SneakyThrows
     public void shouldGetConversationSourceThrowExceptionConversationId() {
         client.getConversation(-1L, Arrays.asList("id"));
     }
 
-    @Test(expected=ApiException.class)
+    @Test(expected = ApiException.class)
     @SneakyThrows
     public void shouldThreadSourceThrowExceptionWrongConversationId() {
         client.getThreadSource(null, 3124897L);
     }
 
-    @Test(expected=ApiException.class)
+    @Test(expected = ApiException.class)
     @SneakyThrows
     public void shouldThreadSourceThrowExceptionWrongThreadId() {
         client.getThreadSource(10L, null);
