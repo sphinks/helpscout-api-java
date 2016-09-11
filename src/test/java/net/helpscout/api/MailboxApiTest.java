@@ -2,6 +2,7 @@ package net.helpscout.api;
 
 import lombok.SneakyThrows;
 import net.helpscout.api.model.Conversation;
+import net.helpscout.api.model.Customer;
 import net.helpscout.api.model.MailboxUser;
 import net.helpscout.api.model.customfield.CustomField;
 import net.helpscout.api.model.customfield.CustomFieldOption;
@@ -14,9 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.ImmutableList.of;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static net.helpscout.api.model.customfield.CustomFieldType.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
@@ -97,6 +96,86 @@ public class MailboxApiTest extends AbstractApiClientTest {
         assertThat(mailboxUsers.getItems().size(), equalTo(1));
         assertThat(mailboxUsers.getItems().get(0).getEmail(), equalTo("jack.sprout@gmail.com"));
 
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnCustomerByMailbox() {
+        stubGETWithLikeUrl("/v1/mailboxes/1/customers.json?.*", "customers_list");
+
+        Page<Customer> customers = client.getCustomersForMailbox(1L, 0, null);
+
+        assertThat(customers.getItems().size(), equalTo(1));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getLastName(), equalTo("Bear"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsForCustomerByMailbox() {
+
+        stubGET("/v1/mailboxes/10/customers/5/conversations.json", "conversations_list");
+
+        Page<Conversation> customers = client.getConversationsForCustomerByMailbox(10L, 5L);
+
+        assertThat(customers.getItems().size(), equalTo(10));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getSubject(), equalTo("It is updated!"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsForCustomerByMailboxWithQuery() {
+        stubGETWithLikeUrl("/v1/mailboxes/10/customers/5/conversations.json?.*", "conversations_list");
+
+        HashMap<String, String> query = new HashMap<>();
+        query.put("id", "246744109");
+
+        Page<Conversation> customers = client.getConversationsForCustomerByMailbox(10L, 5L, query);
+
+        assertThat(customers.getItems().size(), equalTo(10));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getSubject(), equalTo("It is updated!"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsByMailbox() {
+
+        stubGET("/v1/mailboxes/10/conversations.json", "conversations_list");
+
+        Page<Conversation> customers = client.getConversationsForMailbox(10L);
+
+        assertThat(customers.getItems().size(), equalTo(10));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getSubject(), equalTo("It is updated!"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsByMailboxWithQuery() {
+        stubGETWithLikeUrl("/v1/mailboxes/10/conversations.json?.*", "conversations_list");
+
+        HashMap<String, String> query = new HashMap<>();
+        query.put("id", "246744109");
+
+        Page<Conversation> customers = client.getConversationsForMailbox(10L, query);
+
+        assertThat(customers.getItems().size(), equalTo(10));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getSubject(), equalTo("It is updated!"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnConversationsByMailboxWithFields() {
+        stubGETWithLikeUrl("/v1/mailboxes/10/conversations.json?.*", "conversations_list_short");
+
+        Page<Conversation> customers = client.getConversationsForMailbox(10L, Arrays.asList("id", "subject"));
+
+        assertThat(customers.getItems().size(), equalTo(1));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getSubject(), equalTo("It is updated!"));
     }
 
     @Test(expected=ApiException.class)

@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import net.helpscout.api.model.Workflow;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -49,5 +50,30 @@ public class WorkflowApiTest extends AbstractApiClientTest {
         Page<Workflow> workflows = client.getWorkflows(6L, query);
         assertNotNull(workflows);
         assertEquals(1, workflows.getItems().size());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldRunManualWorkflow() {
+        givenThat(post(urlEqualTo("/v1/workflows/3/conversations/456.json"))
+                .willReturn(aResponse().withStatus(HTTP_OK)));
+
+        client.runManualWorkflow(3L, 456L);
+
+        verify(postRequestedFor(urlEqualTo("/v1/workflows/3/conversations/456.json")));
+
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldRunManualWorkflowWithSeveralTickets() {
+        givenThat(post(urlEqualTo("/v1/workflows/3/conversations.json"))
+                .willReturn(aResponse().withStatus(HTTP_OK)));
+
+        client.runManualWorkflow(3L, Arrays.asList(456L, 789L));
+
+        verify(postRequestedFor(urlEqualTo("/v1/workflows/3/conversations.json"))
+                .withRequestBody(equalToJson("{\"conversationIds\":[456,789]}")));
+
     }
 }

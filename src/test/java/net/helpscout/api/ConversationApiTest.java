@@ -1,6 +1,5 @@
 package net.helpscout.api;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.helpscout.api.cbo.PersonType;
@@ -9,7 +8,6 @@ import net.helpscout.api.model.SearchConversation;
 import net.helpscout.api.model.customfield.*;
 import org.hamcrest.Matcher;
 import org.joda.time.LocalDate;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -31,9 +29,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldReturnCustomFields() {
-        givenThat(get(urlEqualTo("/v1/conversations/10.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_10"))));
+        stubGET("/v1/conversations/10.json", "conversation_10");
 
         Conversation conversation = client.getConversation(10L);
 
@@ -48,9 +44,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldParseConversation_WhenCustomFieldsAreNotPresent() {
-        givenThat(get(urlEqualTo("/v1/conversations/11.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_11"))));
+        stubGET("/v1/conversations/11.json", "conversation_11");
 
         Conversation conversation = client.getConversation(11L);
         assertNull(conversation.getCustomFields());
@@ -93,9 +87,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldProperlyParseAllCustomFieldTypes() {
-        givenThat(get(urlEqualTo("/v1/conversations/13.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_13"))));
+        stubGET("/v1/conversations/13.json", "conversation_13");
 
         Conversation conversation = client.getConversation(13L);
         val fields = conversation.getCustomFields();
@@ -110,9 +102,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldProperlyParseAllCustomFieldProperties() {
-        givenThat(get(urlEqualTo("/v1/conversations/13.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_13"))));
+        stubGET("/v1/conversations/13.json", "conversation_13");
 
         Conversation conversation = client.getConversation(13L);
         val fields = conversation.getCustomFields();
@@ -137,9 +127,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldSetTeamPersonType() {
-        givenThat(get(urlEqualTo("/v1/conversations/10.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_10"))));
+        stubGET("/v1/conversations/10.json", "conversation_10");
 
         Conversation conversation = client.getConversation(10L);
         assertThat(conversation.getOwner().getType(), equalTo(PersonType.Team));
@@ -148,9 +136,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldReturnConversationWithSpecifiedFields() {
-        givenThat(get(urlEqualTo("/v1/conversations/10.json?fields=id,subject"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("conversation_short"))));
+        stubGET("/v1/conversations/10.json?fields=id,subject", "conversation_short");
 
         Conversation conversation = client.getConversation(10L, Arrays.asList("id", "subject"));
         assertThat(conversation.getSubject(), notNullValue());
@@ -160,9 +146,7 @@ public class ConversationApiTest extends AbstractApiClientTest {
     @Test
     @SneakyThrows
     public void shouldReturnThreadSource() {
-        givenThat(get(urlEqualTo("/v1/conversations/10/thread-source/3124897.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("thread_source"))));
+        stubGET("/v1/conversations/10/thread-source/3124897.json", "thread_source");
 
         String source = client.getThreadSource(10L, 3124897L);
         assertThat(source, equalTo(""));

@@ -137,16 +137,4 @@ public class CustomerApiTest extends AbstractApiClientTest {
         assertNotNull(customers.getItems().get(0));
         assertThat(customers.getItems().get(0).getLastName(), equalTo("Bear"));
     }
-
-    @Test
-    @SneakyThrows
-    public void shouldReturnCustomerForMailbox() {
-        stubGETWithLikeUrl("/v1/mailboxes/1/customers.json?.*", "customers_list");
-
-        Page<Customer> customers = client.getCustomersForMailbox(1L, 0, null);
-
-        assertThat(customers.getItems().size(), equalTo(1));
-        assertNotNull(customers.getItems().get(0));
-        assertThat(customers.getItems().get(0).getLastName(), equalTo("Bear"));
-    }
 }
