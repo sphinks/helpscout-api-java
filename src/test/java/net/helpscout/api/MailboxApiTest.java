@@ -15,6 +15,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.google.common.collect.ImmutableList.of;
 import static net.helpscout.api.model.customfield.CustomFieldType.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -108,6 +111,22 @@ public class MailboxApiTest extends AbstractApiClientTest {
         assertThat(customers.getItems().size(), equalTo(1));
         assertNotNull(customers.getItems().get(0));
         assertThat(customers.getItems().get(0).getLastName(), equalTo("Bear"));
+
+        verify(getRequestedFor(urlEqualTo("/v1/mailboxes/1/customers.json?page=0")));
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldReturnCustomerByMailboxWithFields() {
+        stubGETWithLikeUrl("/v1/mailboxes/1/customers.json?.*", "customers_list");
+
+        Page<Customer> customers = client.getCustomersForMailbox(1L, 0, Arrays.asList("id", "firstName"));
+
+        assertThat(customers.getItems().size(), equalTo(1));
+        assertNotNull(customers.getItems().get(0));
+        assertThat(customers.getItems().get(0).getLastName(), equalTo("Bear"));
+
+        verify(getRequestedFor(urlEqualTo("/v1/mailboxes/1/customers.json?page=0&fields=id,firstName")));
     }
 
     @Test
