@@ -19,6 +19,10 @@ public class HTTPMethodWrapper {
     @Setter
     private String baseUrl;
 
+    public HTTPMethodWrapper(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
     public <T> T doPost(String url, String requestBody, int expectedCode, ResultExtractor<T> extractor) throws ApiException {
 
         try (HTTPConnectionWrapper conn = new HTTPConnectionWrapper(apiKey, baseUrl + url, METHOD_POST, expectedCode, requestBody)) {
