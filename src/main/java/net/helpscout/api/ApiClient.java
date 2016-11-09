@@ -1,6 +1,8 @@
 package net.helpscout.api;
 
 import com.google.gson.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.helpscout.api.adapters.*;
 import net.helpscout.api.cbo.*;
 import net.helpscout.api.exception.*;
@@ -35,6 +37,7 @@ import static net.helpscout.api.utils.ParamsUtils.getCustomerSearchParams;
 import static net.helpscout.api.utils.ParamsUtils.setFields;
 import static net.helpscout.api.utils.ParamsUtils.setParams;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiClient {
 
     private final static String DEFAULT_BASE_URL = "https://api.helpscout.net/v1/";
@@ -44,15 +47,11 @@ public class ApiClient {
 
     private static final ResultExtractor<Long> idExtractor = new IdExtractor();
     private static final ResultExtractor<String> hashExtractor = new HashExtractor();
-    private static final HTTPMethodWrapper httpMethodWrapper = new HTTPMethodWrapper();
+    private static final HTTPMethodWrapper httpMethodWrapper = new HTTPMethodWrapper(DEFAULT_BASE_URL);
 
     private static ApiClient instance = new ApiClient();
 
     private final JsonParser jsonParser = new JsonParser();
-
-    private ApiClient() {
-        httpMethodWrapper.setBaseUrl(DEFAULT_BASE_URL);
-    }
 
     public static ApiClient getInstance() {
         return instance;
