@@ -56,22 +56,6 @@ public class ApiClientTest extends AbstractApiClientTest {
     }
 
     @Test
-    public void shouldRetrieveSpecificCustomer() throws ApiException {
-        givenThat(get(urlEqualTo("/v1/customers/60984612.json"))
-                .willReturn(aResponse().withStatus(HTTP_OK)
-                        .withBody(getResponse("customer"))));
-
-        Long customerId = 60984612L;
-        Customer customer = client.getCustomer(customerId);
-
-        assertEquals("Peter", customer.getFirstName());
-        assertEquals(customerId, customer.getId());
-        assertNotNull(customer.getAddress().getCreatedAt());
-        Long addressId = 1187643L;
-        assertEquals(addressId, customer.getAddress().getId());
-    }
-
-    @Test
     @SneakyThrows
     public void checkThatSearchQueryWithSpacesDidNotProduceException() throws ApiException {
         givenThat(get(urlMatching("/v1/search/conversations.json.*"))

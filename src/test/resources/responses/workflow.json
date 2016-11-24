@@ -1,0 +1,17 @@
+{
+  "page": 1,
+  "pages": 1,
+  "count": 4,
+  "items": [
+    {
+      "id": 1234,
+      "mailboxId": 100,
+      "type": "manual",
+      "status": "active",
+      "order": 1,
+      "name": "My Tickets",
+      "createdAt": "2012-07-24T20:13:12Z",
+      "modifiedAt": "2012-07-24T20:18:33Z"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "page": 1,
+  "pages": 1,
+  "count": 4,
+  "items": [{
+    "id": 29418,
+    "firstName": "Vernon",
+    "lastName": "Bear",
+    "photoUrl": "http://twitter.com/img/some-avatar.jpg",
+    "photoType": "twitter",
+    "gender": "Male",
+    "age": "30-35",
+    "organization": "Acme, Inc",
+    "jobTitle": "CEO and Co-Founder",
+    "location": "Greater Dallas/FT Worth Area",
+    "createdAt": "2012-07-23T12:34:12Z",
+    "modifiedAt": "2012-07-24T20:18:33Z"
+  }
+  ]
+}

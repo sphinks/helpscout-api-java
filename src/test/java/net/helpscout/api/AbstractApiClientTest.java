@@ -48,6 +48,12 @@ public class AbstractApiClientTest {
                         .withBody(getResponse(responseName))));
     }
 
+    protected void stubGETWithLikeUrl(String url, String responseName) {
+        givenThat(get(urlMatching(url))
+                .willReturn(aResponse().withStatus(HTTP_OK)
+                        .withBody(getResponse(responseName))));
+    }
+
 
     @AllArgsConstructor
     class ApiExceptionMatcher extends TypeSafeMatcher<ApiException> {

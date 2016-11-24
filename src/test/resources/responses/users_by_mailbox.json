@@ -1,0 +1,19 @@
+{
+  "page": 1,
+  "pages": 1,
+  "count": 4,
+  "items": [
+    {
+      "id": 1234,
+      "firstName": "Jack",
+      "lastName": "Sprout",
+      "email": "jack.sprout@gmail.com",
+      "role": "owner",
+      "timezone": "America/New_York",
+      "photoUrl": "http://somesite.com/images/avatar.jpg",
+      "createdAt": "2011-04-01T03:18:33Z",
+      "modifiedAt": "2012-07-24T20:18:33Z",
+      "type": "user"
+    }
+  ]
+}

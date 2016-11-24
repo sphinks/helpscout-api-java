@@ -59,12 +59,34 @@ public class UsersApiTest extends AbstractApiClientTest {
 
     @Test
     @SneakyThrows
+    public void shouldReturnUserMe() {
+        stubGET("/v1/users/me.json", "user");
+
+        val user = client.getUserMe();
+
+        assertThat(user.getId(), equalTo(110L));
+    }
+
+    @Test
+    @SneakyThrows
     public void shouldReturnUser_WhenUsingFieldsParams() {
         stubGET("/v1/users/110.json?fields=id", "user");
 
         val user = client.getUser(110L, ImmutableList.of("id"));
 
         assertThat(user.getId(), equalTo(110L));
+    }
+
+    @Test(expected = ApiException.class)
+    @SneakyThrows
+    public void shouldNotReturnUser_WhenIncorrectId() {
+        client.getUser(-1L);
+    }
+
+    @Test(expected = ApiException.class)
+    @SneakyThrows
+    public void shouldNotReturnUser_WhenNullId() {
+        client.getUser((Long)null);
     }
 
 }

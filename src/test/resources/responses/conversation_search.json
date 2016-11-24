@@ -1,0 +1,19 @@
+{
+  "page": 1,
+  "pages": 1,
+  "count": 4,
+  "items": [
+    {
+      "id": 2391938111,
+      "number": "349",
+      "mailboxid": 1234,
+      "subject": "I need help!",
+      "status": "active",
+      "threadCount": 3,
+      "preview": "Hello, I tried to download the file off your site...",
+      "customerName": "John Appleseed",
+      "customerEmail": "john@appleseed.com",
+      "modifiedAt": "2012-07-24T20:18:33Z"
+    }
+  ]
+}

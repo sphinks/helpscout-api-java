@@ -1,0 +1,23 @@
+{
+  "pages": 3,
+  "page": 1,
+  "count": 58,
+  "results": [
+    {
+      "number": 59691,
+      "responseTime": 14434,
+      "firstResponseTime": 14434,
+      "resolveTime": 14434,
+      "repliesSent": 4,
+      "id": 1545204,
+      "status": "closed",
+      "customers": [
+        {
+          "id": 2,
+          "name": "Mary Jones"
+        }
+      ],
+      "avgHandleTime": 65.0
+    }
+  ]
+}

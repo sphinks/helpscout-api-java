@@ -1,0 +1,22 @@
+[
+  {
+    "day": 1,
+    "hour": 0,
+    "count": 3
+  },
+  {
+    "day": 1,
+    "hour": 1,
+    "count": 2
+  },
+  {
+    "day": 7,
+    "hour": 22,
+    "count": 12
+  },
+  {
+    "day": 7,
+    "hour": 23,
+    "count": 4
+  }
+]
