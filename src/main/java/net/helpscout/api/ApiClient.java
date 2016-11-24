@@ -1,8 +1,6 @@
 package net.helpscout.api;
 
 import com.google.gson.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.helpscout.api.adapters.*;
 import net.helpscout.api.cbo.*;
 import net.helpscout.api.exception.*;
@@ -27,17 +25,21 @@ import net.helpscout.api.model.report.user.ConversationStats;
 import net.helpscout.api.model.report.user.UserHappiness;
 import net.helpscout.api.model.report.user.UserReport;
 import net.helpscout.api.model.thread.*;
+import net.helpscout.api.utils.LoggingInterceptor;
 import net.helpscout.api.utils.ParamsUtils;
+import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
 import java.util.*;
 
-import static java.text.MessageFormat.format;
 import static net.helpscout.api.utils.ParamsUtils.getCustomerSearchParams;
 import static net.helpscout.api.utils.ParamsUtils.setFields;
 import static net.helpscout.api.utils.ParamsUtils.setParams;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiClient {
 
     private final static String DEFAULT_BASE_URL = "https://api.helpscout.net/v1/";
@@ -53,16 +55,44 @@ public class ApiClient {
 
     private final JsonParser jsonParser = new JsonParser();
 
+    private LoggingInterceptor logInterceptor;
+    private OkHttpClient okHttpClient;
+    private Retrofit retrofit;
+    private ApiDeclaration apiClient;
+
+    private ApiClient() {
+        httpMethodWrapper.setBaseUrl(DEFAULT_BASE_URL);
+        logInterceptor = new LoggingInterceptor("some key");
+        okHttpClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(logInterceptor)
+                .build();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(DEFAULT_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
+
+        apiClient = retrofit.create(ApiDeclaration.class);
+    }
+
     public static ApiClient getInstance() {
         return instance;
     }
 
     public void setKey(String apiKey) {
         httpMethodWrapper.setApiKey(apiKey);
+        logInterceptor.setApiKey(apiKey);
     }
 
     public void setBaseUrl(String baseUrl) {
         httpMethodWrapper.setBaseUrl(baseUrl);
+        retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
+
+        apiClient = retrofit.create(ApiDeclaration.class);
     }
 
     /**
@@ -564,7 +594,7 @@ public class ApiClient {
      * @throws ApiException
      * @deprecated use {@link #getAttachmentData(Long)}
      */
-    public String getAttachmentData(Integer attachmentID) throws ApiException {
+    public String getAttachmentData(Integer attachmentID) throws IOException {
         return getAttachmentData(Long.valueOf(attachmentID));
     }
 
@@ -575,7 +605,7 @@ public class ApiClient {
      * @return String
      * @throws ApiException
      */
-    public String getAttachmentData(Long attachmentID) throws ApiException {
+    public String getAttachmentData(Long attachmentID) throws IOException {
         return new String(getAttachmentBinaryData(attachmentID));
     }
 
@@ -586,10 +616,8 @@ public class ApiClient {
      * @return String
      * @throws ApiException
      */
-    public byte[] getAttachmentBinaryData(Long attachmentID) throws ApiException {
-        if (attachmentID == null || attachmentID < 1) {
-            throw new ApiException("Invalid attachmentID in getAttachmentData");
-        }
+    public byte[] getAttachmentBinaryData(Long attachmentID) throws IOException {
+        validateId(attachmentID);
         String url = "attachments/" + attachmentID + "/data.json";
         String json = httpMethodWrapper.doGet(url, HTTP_STATUS_OK);
         JsonElement obj = parseJson(url, json);
@@ -614,7 +642,7 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> getCustomers() throws ApiException {
+    public Page<Customer> getCustomers() throws IOException {
         return getCustomers((Integer) null);
     }
 
@@ -625,12 +653,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> getCustomers(Integer page) throws ApiException {
-        if (page != null) {
-            return getPage("customers.json?page=" + page, Customer.class);
-        } else {
-            return getPage("customers.json", Customer.class);
-        }
+    public Page<Customer> getCustomers(Integer page) throws IOException {
+        return apiClient.getCustomers(page, getEmptyMap()).execute().body();
     }
 
     /**
@@ -640,9 +664,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> getCustomers(List<String> fields) throws ApiException {
-        String url = setFields("customers.json", fields);
-        return getPage(url, Customer.class);
+    public Page<Customer> getCustomers(List<String> fields) throws IOException {
+        return apiClient.getCustomers(null, getEmptyMap(), StringUtils.join(fields, ",")).execute().body();
     }
 
     /**
@@ -654,14 +677,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> getCustomersForMailbox(Long mailboxId, Integer page, List<String> fields) throws ApiException {
-        StringBuilder sbUrl = new StringBuilder();
-        sbUrl.append("mailboxes/").append(mailboxId).append("/customers.json");
-        if (page != null) {
-            sbUrl.append("?page=").append(page);
-        }
-        String url = setFields(sbUrl.toString(), fields);
-        return getPage(url, Customer.class);
+    public Page<Customer> getCustomersForMailbox(Long mailboxId, Integer page, List<String> fields) throws IOException {
+        return apiClient.getCustomersForMailbox(mailboxId, page, StringUtils.join(fields, ",")).execute().body();
     }
 
     /**
@@ -674,7 +691,7 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> searchCustomers(String email, String firstName, String lastName) throws ApiException {
+    public Page<Customer> searchCustomers(String email, String firstName, String lastName) throws IOException {
         return searchCustomers(email, firstName, lastName, null, null);
     }
 
@@ -690,10 +707,9 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Customer> searchCustomers(String email, String firstName, String lastName, Integer page, List<String> fields) throws ApiException {
+    public Page<Customer> searchCustomers(String email, String firstName, String lastName, Integer page, List<String> fields) throws IOException {
         Map<String, String> params = getCustomerSearchParams(email, firstName, lastName, page);
-        String url = setFields("customers.json", fields);
-        return getPage(url, params, Customer.class);
+        return apiClient.getCustomers(null, params).execute().body();
     }
 
     /**
@@ -722,9 +738,9 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<SearchCustomer> searchCustomers(String query, String sortField, String sortOrder, Integer page) throws ApiException {
+    public Page<SearchCustomer> searchCustomers(String query, String sortField, String sortOrder, Integer page) throws IOException {
         Map<String, String> params = ParamsUtils.getSearchParamsMap(query, sortField, sortOrder, page);
-        return getPage("search/customers.json", params, SearchCustomer.class);
+        return apiClient.searchCustomers(params).execute().body();
     }
 
     /**
@@ -734,8 +750,8 @@ public class ApiClient {
      * @return Customer
      * @throws ApiException
      */
-    public Customer getCustomer(Long customerId) throws ApiException {
-        return getItem("customers/" + customerId + ".json", Customer.class, HTTP_STATUS_OK);
+    public Customer getCustomer(Long customerId) throws IOException {
+        return apiClient.getCustomer(customerId).execute().body().getItem();
     }
 
     /**
@@ -746,12 +762,9 @@ public class ApiClient {
      * @return Customer
      * @throws ApiException
      */
-    public Customer getCustomer(Long customerId, List<String> fields) throws ApiException {
-        if (customerId == null || customerId < 1) {
-            throw new ApiException("Invalid customerId in getCustomer");
-        }
-        String url = setFields("customers/" + customerId + ".json", fields);
-        return getItem(url, Customer.class, HTTP_STATUS_OK);
+    public Customer getCustomer(Long customerId, List<String> fields) throws IOException {
+        validateId(customerId);
+        return apiClient.getCustomer(customerId, StringUtils.join(fields, ',')).execute().body().getItem();
     }
 
     /**
@@ -760,8 +773,8 @@ public class ApiClient {
      * @return User
      * @throws ApiException
      */
-    public User getUserMe() throws ApiException {
-        return getItem("users/me.json", User.class, HTTP_STATUS_OK);
+    public User getUserMe() throws IOException {
+        return apiClient.getUserMe().execute().body().getItem();
     }
 
     /**
@@ -772,7 +785,7 @@ public class ApiClient {
      * @throws ApiException
      * @deprecated use {@link #getUser(Long)}
      */
-    public MailboxUser getUser(Integer userID) throws ApiException {
+    public MailboxUser getUser(Integer userID) throws IOException {
         return getUser(Long.valueOf(userID));
     }
 
@@ -783,19 +796,20 @@ public class ApiClient {
      * @return User
      * @throws ApiException
      */
-    public MailboxUser getUser(Long userID) throws ApiException {
-        return getItem("users/" + userID + ".json", MailboxUser.class, HTTP_STATUS_OK);
+    public MailboxUser getUser(Long userID) throws IOException {
+        validateId(userID);
+        return apiClient.getUser(userID).execute().body().getItem();
     }
 
     /**
-     * Gets the user with the specified id.
+     * Gets the team with the specified id.
      *
      * @param teamID
      * @return User
      * @throws ApiException
      */
-    public Team getTeam(Long teamID) throws ApiException {
-        return getItem("teams/" + teamID + ".json", Team.class, HTTP_STATUS_OK);
+    public Team getTeam(Long teamID) throws IOException {
+        return apiClient.getTeam(teamID).execute().body().getItem();
     }
 
     /**
@@ -807,7 +821,7 @@ public class ApiClient {
      * @throws ApiException
      * @deprecated use {@link #getUser(Long, List)}
      */
-    public MailboxUser getUser(Integer userID, List<String> fields) throws ApiException {
+    public MailboxUser getUser(Integer userID, List<String> fields) throws IOException {
         return getUser(Long.valueOf(userID), fields);
     }
 
@@ -819,29 +833,21 @@ public class ApiClient {
      * @return User
      * @throws ApiException
      */
-    public MailboxUser getUser(Long userID, List<String> fields) throws ApiException {
-        return getMailboxUser(MailboxUser.class, "users", userID, fields);
+    public MailboxUser getUser(Long userID, List<String> fields) throws IOException {
+        return apiClient.getUser(userID, StringUtils.join(fields, ",")).execute().body().getItem();
     }
 
     /**
-     * Gets the user with the specified id.
+     * Gets the team with the specified id.
      *
      * @param teamID
      * @param fields
      * @return User
      * @throws ApiException
      */
-    public Team getTeam(Long teamID, List<String> fields) throws ApiException {
-        return getMailboxUser(Team.class, "teams", teamID, fields);
-    }
-
-    private <T extends MailboxUser> T getMailboxUser(Class<T> userClass, String baseUrl, Long mailboxUserId, List<String> fields) throws ApiException {
-        if (mailboxUserId == null || mailboxUserId < 1) {
-            throw new ApiException("Invalid identifier, it must be larger than 1, but was " + mailboxUserId);
-        }
-        String url = format("{0}/{1}.json", baseUrl, mailboxUserId);
-        url = setFields(url, fields);
-        return getItem(url, userClass, HTTP_STATUS_OK);
+    public Team getTeam(Long teamID, List<String> fields) throws IOException {
+        validateId(teamID);
+        return apiClient.getTeam(teamID, StringUtils.join(fields, ",")).execute().body().getItem();
     }
 
     /**
@@ -850,8 +856,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<MailboxUser> getUsers() throws ApiException {
-        return getPage("users.json", MailboxUser.class);
+    public Page<MailboxUser> getUsers() throws IOException {
+        return apiClient.getUsers(getEmptyMap()).execute().body();
     }
 
     /**
@@ -860,8 +866,8 @@ public class ApiClient {
      * @return Page of teams
      * @throws ApiException
      */
-    public Page<Team> getTeams() throws ApiException {
-        return getPage("teams.json", Team.class);
+    public Page<Team> getTeams() throws IOException {
+        return apiClient.getTeams(getEmptyMap()).execute().body();
     }
 
     /**
@@ -871,9 +877,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<MailboxUser> getUsers(List<String> fields) throws ApiException {
-        String url = setFields("users.json", fields);
-        return getPage(url, MailboxUser.class);
+    public Page<MailboxUser> getUsers(List<String> fields) throws IOException {
+        return apiClient.getUsers(getEmptyMap(), StringUtils.join(fields, ",")).execute().body();
     }
 
     /**
@@ -883,9 +888,8 @@ public class ApiClient {
      * @return Page
      * @throws ApiException
      */
-    public Page<Team> getTeams(List<String> fields) throws ApiException {
-        String url = setFields("teams.json", fields);
-        return getPage(url, Team.class);
+    public Page<Team> getTeams(List<String> fields) throws IOException {
+        return apiClient.getTeams(getEmptyMap(), StringUtils.join(fields, ",")).execute().body();
     }
 
     /**
@@ -895,8 +899,8 @@ public class ApiClient {
      * @return Page of teams
      * @throws ApiException
      */
-    public Page<MailboxUser> getUsers(Map<String, String> queryParams) throws ApiException {
-        return getPage("users.json", queryParams, MailboxUser.class);
+    public Page<MailboxUser> getUsers(Map<String, String> queryParams) throws IOException {
+        return apiClient.getUsers(queryParams).execute().body();
     }
 
     /**
@@ -906,8 +910,8 @@ public class ApiClient {
      * @return Page of teams
      * @throws ApiException
      */
-    public Page<Team> getTeams(Map<String, String> queryParams) throws ApiException {
-        return getPage("teams.json", queryParams, Team.class);
+    public Page<Team> getTeams(Map<String, String> queryParams) throws IOException {
+        return apiClient.getTeams(queryParams).execute().body();
     }
 
     /**
@@ -1431,6 +1435,16 @@ public class ApiClient {
     private JsonElement parseJson(String url, String json) {
         LoggerFactory.getLogger(getClass()).trace("{}: {}", url, json);
         return jsonParser.parse(json);
+    }
+
+    private void validateId(Long id) throws IOException {
+        if (id == null || id < 1) {
+            throw new ApiException("Invalid identifier, it must be larger than 1, but was " + id);
+        }
+    }
+
+    private Map<String, String> getEmptyMap() {
+        return Collections.emptyMap();
     }
     
 }

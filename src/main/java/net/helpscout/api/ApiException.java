@@ -4,7 +4,9 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import lombok.Getter;
 
-public class ApiException extends Exception {
+import java.io.IOException;
+
+public class ApiException extends IOException {
     private static final long serialVersionUID = 1L;
     
     @Getter
